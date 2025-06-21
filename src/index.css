@@ -1,0 +1,16 @@
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
+@import "tailwindcss";
+
+
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* Custom global styles below if needed */
+body {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}

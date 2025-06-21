@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { useState } from 'react'
-import { Homepage } from './pages/Homepage'
+// import { useState } from 'react'
+import Homepage from './pages/Homepage'
 
 function App() {
-  const [count, setCount] = useState(0)
+  // const [count, setCount] = useState(0)
 
   return (
     <BrowserRouter>
