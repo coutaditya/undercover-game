@@ -2,55 +2,60 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { Box, Container, Typography, Chip, ThemeProvider, createTheme, CssBaseline, Button } from "@mui/material"
+
+import { Box, Container, Typography, Chip, ThemeProvider, createTheme, CssBaseline } from "@mui/material"
+import { ArrowBack, Refresh, PlayArrow } from "@mui/icons-material"
+
+import CustomButton from "../components/Button"
 import GameCard from "../components/Card"
 import PlayerNameModal from "../components/Modal"
 import Header from "../components/Header"
-import { ArrowBack } from "@mui/icons-material"
 import { WORD_PAIRS, MR_WHITE_MESSAGE, type PlayerRole, type WordPair } from "../constants/words"
 
 interface GamePageProps {
-    totalPlayers: number
-    numberOfUndercover: number
-    numberOfMrWhite: number
+  totalPlayers: number
+  numberOfUndercover: number
+  numberOfMrWhite: number
 }
 
 interface PlayerData {
-    playerNumber: number
-    role: PlayerRole
-    word: string
+  playerNumber: number
+  role: PlayerRole
+  word: string
 }
 
 const darkTheme = createTheme({
-    palette: {
-      mode: "dark",
-      primary: {
-        main: "#667eea",
-      },
-      secondary: {
-        main: "#4ecdc4",
-      },
-      error: {
-        main: "#ff6b6b",
-      },
-      background: {
-        default: "#0a0a0a",
-        paper: "rgba(255,255,255,0.05)",
-      },
+  palette: {
+    mode: "dark",
+    primary: {
+      main: "#667eea",
     },
-    typography: {
-      fontFamily: '"Paralucent"',
+    secondary: {
+      main: "#4ecdc4",
     },
-  })
-  
+    error: {
+      main: "#ff6b6b",
+    },
+    background: {
+      default: "#0a0a0a",
+      paper: "rgba(255,255,255,0.05)",
+    },
+  },
+  typography: {
+    fontFamily: '"Paralucent"',
+  },
+})
+
 export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: GamePageProps) {
   const numberOfCivilians = totalPlayers - (numberOfUndercover + numberOfMrWhite)
   const navigate = useNavigate()
   const [playerNames, setPlayerNames] = useState<Map<number, string>>(new Map())
-    const [playerRoles, setPlayerRoles] = useState<Map<number, PlayerData>>(new Map())
-    const [selectedWordPair, setSelectedWordPair] = useState<WordPair | null>(null)
+  const [playerRoles, setPlayerRoles] = useState<Map<number, PlayerData>>(new Map())
+  const [_, setSelectedWordPair] = useState<WordPair | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null)
+  const [gameStarted, setGameStarted] = useState(false)
+
 
   // Scroll to top when component mounts and initialize game
   useEffect(() => {
@@ -95,10 +100,10 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
       let word: string
       switch (role) {
         case "civilian":
-          word = wordPair.civilianWord
+          word = wordPair?.civilianWord || "unknown"
           break
         case "undercover":
-          word = wordPair.undercoverWord
+          word = wordPair?.undercoverWord || "unknown"
           break
         case "mrwhite":
           word = MR_WHITE_MESSAGE
@@ -109,7 +114,7 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
 
       newPlayerRoles.set(playerNumber, {
         playerNumber,
-        role,
+        role: role || "civilian",
         word,
       })
     }
@@ -139,6 +144,14 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
     navigate("/")
   }
 
+  const handleRestartRound = () => {
+    // Keep empty for now as requested
+    console.log("Restart Round clicked")
+  }
+
+  const handleStartRound = () => {
+    setGameStarted(true)
+  }
 
   const generateCards = () => {
     const cards = []
@@ -147,7 +160,12 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
       const playerNumber = i + 1
       cards.push(
         <Box key={`player-${playerNumber}`} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%', lg: '25%' }, p: 1 }}>
-          <GameCard playerNumber={playerNumber} playerName={playerNames.get(playerNumber)} onClick={handleCardClick} />
+          <GameCard
+            playerNumber={playerNumber}
+            playerName={playerNames.get(playerNumber)}
+            onClick={handleCardClick}
+            gameStarted={gameStarted}
+          />
         </Box>,
       )
     }
@@ -159,10 +177,12 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
     return playerNames.size
   }
 
-    const getSelectedPlayerData = (): PlayerData | null => {
-        if (!selectedPlayer) return null
-        return playerRoles.get(selectedPlayer) || null
-    }
+  const allPlayersNamed = getNamedPlayersCount() === totalPlayers
+
+  const getSelectedPlayerData = (): PlayerData | null => {
+    if (!selectedPlayer) return null
+    return playerRoles.get(selectedPlayer) || null
+  }
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -204,7 +224,11 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
         <Container maxWidth="lg" className="relative z-10 py-8">
           <Box className="space-y-8">
             {/* Header */}
-            <Header title="MISSION SETUP" subtitle="Configure Your Agents" />
+            {gameStarted ? (
+              <Header title="ELIMINATION ROUND" subtitle="Eliminate The Impostors" />
+            ) : (
+              <Header title="MISSION SETUP" subtitle="Configure Your Agents" />
+            )}
 
             {/* Game Stats */}
             <Box
@@ -277,9 +301,10 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
                 </Typography>
               </Box>
             )}
-            {/* Restart Game Button */}
-            <Box className="flex justify-center pt-8">
-              <Button
+            <Box className="flex justify-between items-center pt-8 gap-4">
+              {/* Exit Button (Left) */}
+              <CustomButton
+                text="Exit Game"
                 onClick={handleGoBack}
                 startIcon={<ArrowBack />}
                 variant="outlined"
@@ -303,20 +328,75 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
                   },
                   transition: "all 0.3s ease",
                 }}
-              >
-                Restart Game
-              </Button>
+              />
+              {/* Restart Round Button (Center) */}
+              <CustomButton
+                text="Restart Round"
+                onClick={handleRestartRound}
+                startIcon={<Refresh />}
+                variant="outlined"
+                sx={{
+                  color: "rgba(255,255,255,0.8)",
+                  borderColor: "rgba(255,255,255,0.3)",
+                  fontFamily: "'Inter', sans-serif",
+                  fontWeight: 600,
+                  px: 4,
+                  py: 2,
+                  borderRadius: "12px",
+                  textTransform: "none",
+                  fontSize: "1.1rem",
+                  backdropFilter: "blur(10px)",
+                  background: "rgba(255,255,255,0.05)",
+                  "&:hover": {
+                    borderColor: "#ff9800",
+                    backgroundColor: "rgba(255, 152, 0, 0.1)",
+                    color: "#ff9800",
+                    transform: "translateY(-2px)",
+                  },
+                  transition: "all 0.3s ease",
+                }}
+              />
+
+              {/* Start Round Button (Right) */}
+              <CustomButton
+                text="Start Round"
+                onClick={handleStartRound}
+                startIcon={<PlayArrow />}
+                variant="contained"
+                disabled={!allPlayersNamed || gameStarted}
+                sx={{
+                  background: allPlayersNamed && !gameStarted ? "linear-gradient(45deg, #4caf50, #66bb6a)" : "rgba(255,255,255,0.1)",
+                  color: allPlayersNamed && !gameStarted ? "white" : "rgba(255,255,255,0.3)",
+                  fontFamily: "'Inter', sans-serif",
+                  fontWeight: 600,
+                  px: 4,
+                  py: 2,
+                  borderRadius: "12px",
+                  textTransform: "none",
+                  fontSize: "1.1rem",
+                  boxShadow: allPlayersNamed && !gameStarted ? "0 4px 16px rgba(76, 175, 80, 0.4)" : "none",
+                  "&:hover": {
+                    background: allPlayersNamed && !gameStarted ? "linear-gradient(45deg, #388e3c, #4caf50)" : "rgba(255,255,255,0.1)",
+                    transform: allPlayersNamed && !gameStarted ? "translateY(-2px)" : "none",
+                    boxShadow: allPlayersNamed && !gameStarted ? "0 6px 20px rgba(76, 175, 80, 0.5)" : "none",
+                  },
+                  "&:disabled": {
+                    cursor: "not-allowed",
+                  },
+                  transition: "all 0.3s ease",
+                }}
+              />
             </Box>
 
             {/* Player Name Modal */}
             <PlayerNameModal
-                open={modalOpen}
-                playerNumber={selectedPlayer || 0}
-                currentName={selectedPlayer ? playerNames.get(selectedPlayer) || "" : ""}
-                setModalOpen={setModalOpen}
-                playerData={getSelectedPlayerData()}
-                onClose={handleModalClose}
-                onSave={handleSavePlayerName}
+              open={modalOpen}
+              playerNumber={selectedPlayer || 0}
+              currentName={selectedPlayer ? playerNames.get(selectedPlayer) || "" : ""}
+              setModalOpen={setModalOpen}
+              playerData={getSelectedPlayerData()}
+              onClose={handleModalClose}
+              onSave={handleSavePlayerName}
             />
           </Box>
         </Container>

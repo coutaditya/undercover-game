@@ -7,13 +7,55 @@ interface GameCardProps {
   playerNumber: number
   playerName?: string
   onClick: (playerNumber: number) => void
+  gameStarted: boolean
 }
 
-export default function GameCard({ playerNumber, playerName, onClick }: GameCardProps) {
+export default function GameCard({ playerNumber, playerName, onClick, gameStarted = false }: GameCardProps) {
   const handleClick = () => {
     onClick(playerNumber)
   }
 
+  const getCardColors = () => {
+    if (gameStarted) {
+      // Red theme when game started
+      return {
+        background: "linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.05))",
+        border: "2px solid rgba(255, 107, 107, 0.5)",
+        hoverBorder: "2px solid rgba(255, 107, 107, 0.8)",
+        hoverShadow: "0 12px 32px rgba(255, 107, 107, 0.3)",
+        iconColor: "#ff6b6b",
+        textColor: "#ff6b6b",
+        gradientBg: "linear-gradient(45deg, #ff6b6b, #ff8a80)",
+        shadowColor: "rgba(255, 107, 107, 0.4)",
+      }
+    } else if (playerName) {
+      // Green theme when named
+      return {
+        background: "linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05))",
+        border: "2px solid rgba(76, 175, 80, 0.5)",
+        hoverBorder: "2px solid rgba(76, 175, 80, 0.8)",
+        hoverShadow: "0 12px 32px rgba(76, 175, 80, 0.3)",
+        iconColor: "#4caf50",
+        textColor: "#4caf50",
+        gradientBg: "linear-gradient(45deg, #4caf50, #66bb6a)",
+        shadowColor: "rgba(76, 175, 80, 0.4)",
+      }
+    } else {
+      // Default blue theme
+      return {
+        background: "rgba(255,255,255,0.05)",
+        border: "2px solid rgba(102, 126, 234, 0.5)",
+        hoverBorder: "2px solid rgba(102, 126, 234, 0.8)",
+        hoverShadow: "0 12px 32px rgba(102, 126, 234, 0.3)",
+        iconColor: "#667eea",
+        textColor: "#667eea",
+        gradientBg: "linear-gradient(45deg, #667eea, #764ba2)",
+        shadowColor: "rgba(102, 126, 234, 0.4)",
+      }
+    }
+  }
+
+  const colors = getCardColors()
   return (
     <Card
       onClick={handleClick}
@@ -23,19 +65,17 @@ export default function GameCard({ playerNumber, playerName, onClick }: GameCard
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        background: playerName
-          ? "linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05))"
-          : "rgba(255,255,255,0.05)",
+        background: colors.background,
         backdropFilter: "blur(10px)",
-        border: playerName ? "2px solid rgba(76, 175, 80, 0.5)" : "2px solid rgba(102, 126, 234, 0.5)",
+        border: colors.border,
         borderRadius: "16px",
         transition: "all 0.3s ease-in-out",
         cursor: "pointer",
         position: "relative",
         "&:hover": {
           transform: "translateY(-8px)",
-          boxShadow: playerName ? "0 12px 32px rgba(76, 175, 80, 0.3)" : "0 12px 32px rgba(102, 126, 234, 0.3)",
-          border: playerName ? "2px solid rgba(76, 175, 80, 0.8)" : "2px solid rgba(102, 126, 234, 0.8)",
+          boxShadow: colors.hoverShadow,
+          border: colors.hoverBorder,
         },
       }}
     >
@@ -45,7 +85,7 @@ export default function GameCard({ playerNumber, playerName, onClick }: GameCard
           position: "absolute",
           top: 12,
           right: 12,
-          color: playerName ? "#4caf50" : "#667eea",
+          color: colors.iconColor,
           opacity: 0.8,
         }}
       >
@@ -66,12 +106,12 @@ export default function GameCard({ playerNumber, playerName, onClick }: GameCard
             label="Ready"
             size="small"
             sx={{
-              backgroundColor: "#4caf50",
+              backgroundColor: gameStarted ? "#ff6b6b" : "#4caf50",
               color: "white",
               fontSize: "0.7rem",
               fontFamily: "'Inter', sans-serif",
               fontWeight: 600,
-              boxShadow: "0 4px 12px rgba(76, 175, 80, 0.4)",
+              boxShadow: colors.shadowColor,
             }}
           />
         </Box>
@@ -89,7 +129,7 @@ export default function GameCard({ playerNumber, playerName, onClick }: GameCard
         {/* Player Icon */}
         <Box
           sx={{
-            color: playerName ? "#4caf50" : "#e5e5e5",
+            color: colors.iconColor,
             fontSize: "3rem",
             display: "flex",
             alignItems: "center",
@@ -106,7 +146,7 @@ export default function GameCard({ playerNumber, playerName, onClick }: GameCard
             variant="h6"
             component="h3"
             sx={{
-              color: "#4caf50",
+              color: colors.textColor,
               fontFamily: "'Inter', sans-serif",
               fontWeight: "bold",
               textAlign: "center",
@@ -121,7 +161,7 @@ export default function GameCard({ playerNumber, playerName, onClick }: GameCard
             variant="h6"
             component="h3"
             sx={{
-              color: "#e5e5e5",
+              color: colors.textColor,
               fontFamily: "'Inter', sans-serif",
               fontWeight: "bold",
               textAlign: "center",
@@ -139,14 +179,12 @@ export default function GameCard({ playerNumber, playerName, onClick }: GameCard
             color: "white",
             fontFamily: "'Inter', sans-serif",
             fontWeight: "bold",
-            background: playerName
-              ? "linear-gradient(45deg, #4caf50, #66bb6a)"
-              : "linear-gradient(45deg, #667eea, #764ba2)",
+            background: colors.gradientBg,
             padding: "8px 16px",
             borderRadius: "20px",
             minWidth: "48px",
             textAlign: "center",
-            boxShadow: playerName ? "0 4px 16px rgba(76, 175, 80, 0.4)" : "0 4px 16px rgba(102, 126, 234, 0.4)",
+            boxShadow: `0 4px 16px ${colors.shadowColor}`,
             textShadow: "0 2px 4px rgba(0,0,0,0.3)",
           }}
         >
