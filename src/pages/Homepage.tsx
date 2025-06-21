@@ -32,7 +32,7 @@ const darkTheme = createTheme({
     },
 })
 
-export default function UndercoverHomePage() {
+export function Homepage() {
     const [totalPlayers, setTotalPlayers] = useState(6)
     const [undercovers, setUndercovers] = useState(1)
     const [mrWhite, setMrWhite] = useState(1)
