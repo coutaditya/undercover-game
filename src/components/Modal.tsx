@@ -2,28 +2,30 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Typography, Box, Divider } from "@mui/material"
 import { Person, Visibility, ArrowBack } from "@mui/icons-material"
+import type { PlayerRole } from "../constants/words"
+
+interface PlayerData {
+    playerNumber: number
+    role: PlayerRole
+    word: string
+}
 
 interface PlayerNameModalProps {
   open: boolean
   playerNumber: number
   currentName?: string
   setModalOpen: (open: boolean) => void
+  playerData: PlayerData | null
   onClose: () => void
   onSave: (playerNumber: number, playerName: string) => void
 }
 
 type ModalView = "nameInput" | "wordDisplay"
 
-export default function PlayerNameModal({ open, playerNumber, currentName = "", setModalOpen, onClose, onSave }: PlayerNameModalProps) {
+export default function PlayerNameModal({ open, playerNumber, currentName = "", setModalOpen, playerData, onClose, onSave }: PlayerNameModalProps) {
   const [playerName, setPlayerName] = useState(currentName)
   const [modalView, setModalView] = useState<ModalView>("nameInput")
   const [hasName, setHasName] = useState(false)
-
-  // For now, using placeholder words - this could be enhanced with actual game logic
-  const getPlayerWord = (playerNum: number): string => {
-    const words = ["Apple", "Orange", "Banana", "Grape", "Strawberry", "Pineapple", "Mango", "Kiwi"]
-    return words[playerNum % words.length] || "Word"
-  }
 
   useEffect(() => {
     setPlayerName(currentName)
@@ -213,8 +215,17 @@ export default function PlayerNameModal({ open, playerNumber, currentName = "", 
     </>
   )
 
-  const renderWordDisplayView = () => (
-    <>
+  const renderWordDisplayView = () => {
+    if (!playerData) {
+        return (
+          <Box sx={{ p: 3, textAlign: "center" }}>
+            <Typography color="error">Error: Player data not found</Typography>
+          </Box>
+        )
+      }
+
+    return (
+        <>
       <DialogTitle
         sx={{
           background: "linear-gradient(135deg, #4caf50, #66bb6a)",
@@ -243,7 +254,7 @@ export default function PlayerNameModal({ open, playerNumber, currentName = "", 
               fontFamily: "'Inter', sans-serif",
             }}
           >
-            Your secret word is:
+            {playerData.role === "mrwhite" ? "Your role:" : "Your secret word is:"}
           </Typography>
           <Box
             sx={{
@@ -266,7 +277,7 @@ export default function PlayerNameModal({ open, playerNumber, currentName = "", 
                 textShadow: "0 4px 8px rgba(0,0,0,0.5)",
               }}
             >
-              {getPlayerWord(playerNumber)}
+              {playerData.word}
             </Typography>
           </Box>
           <Typography
@@ -276,7 +287,9 @@ export default function PlayerNameModal({ open, playerNumber, currentName = "", 
               fontFamily: "'Inter', sans-serif",
             }}
           >
-            Remember this word for the mission!
+              {playerData.role === "mrwhite"
+                ? "You don't know the word. Try to blend in!"
+                : "Remember this word for the mission!"}
           </Typography>
         </Box>
       </DialogContent>
@@ -320,7 +333,8 @@ export default function PlayerNameModal({ open, playerNumber, currentName = "", 
         </Button>
       </DialogActions>
     </>
-  )
+    )  
+  }
 
   return (
     <Dialog

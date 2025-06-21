@@ -7,46 +7,115 @@ import GameCard from "../components/Card"
 import PlayerNameModal from "../components/Modal"
 import Header from "../components/Header"
 import { ArrowBack } from "@mui/icons-material"
+import { WORD_PAIRS, MR_WHITE_MESSAGE, type PlayerRole, type WordPair } from "../constants/words"
 
 interface GamePageProps {
-  totalPlayers: number
-  numberOfUndercover: number
-  numberOfMrWhite: number
+    totalPlayers: number
+    numberOfUndercover: number
+    numberOfMrWhite: number
+}
+
+interface PlayerData {
+    playerNumber: number
+    role: PlayerRole
+    word: string
 }
 
 const darkTheme = createTheme({
-  palette: {
-    mode: "dark",
-    primary: {
-      main: "#667eea",
+    palette: {
+      mode: "dark",
+      primary: {
+        main: "#667eea",
+      },
+      secondary: {
+        main: "#4ecdc4",
+      },
+      error: {
+        main: "#ff6b6b",
+      },
+      background: {
+        default: "#0a0a0a",
+        paper: "rgba(255,255,255,0.05)",
+      },
     },
-    secondary: {
-      main: "#4ecdc4",
+    typography: {
+      fontFamily: '"Paralucent"',
     },
-    error: {
-      main: "#ff6b6b",
-    },
-    background: {
-      default: "#0a0a0a",
-      paper: "rgba(255,255,255,0.05)",
-    },
-  },
-  typography: {
-    fontFamily: '"Paralucent"',
-  },
-})
-
+  })
+  
 export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: GamePageProps) {
   const numberOfCivilians = totalPlayers - (numberOfUndercover + numberOfMrWhite)
   const navigate = useNavigate()
   const [playerNames, setPlayerNames] = useState<Map<number, string>>(new Map())
+    const [playerRoles, setPlayerRoles] = useState<Map<number, PlayerData>>(new Map())
+    const [selectedWordPair, setSelectedWordPair] = useState<WordPair | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null)
 
-  // Scroll to top when component mounts
+  // Scroll to top when component mounts and initialize game
   useEffect(() => {
+    initializeGame()
     window.scrollTo(0, 0)
   }, [])
+
+  const initializeGame = () => {
+    // Select a random word pair
+    const randomIndex = Math.floor(Math.random() * WORD_PAIRS.length)
+    const wordPair = WORD_PAIRS[randomIndex] || null
+    setSelectedWordPair(wordPair)
+
+    // Create array of roles
+    const roles: PlayerRole[] = []
+
+    // Add civilians
+    for (let i = 0; i < numberOfCivilians; i++) {
+      roles.push("civilian")
+    }
+
+    // Add undercover agents
+    for (let i = 0; i < numberOfUndercover; i++) {
+      roles.push("undercover")
+    }
+
+    // Add Mr. White
+    for (let i = 0; i < numberOfMrWhite; i++) {
+      roles.push("mrwhite")
+    }
+
+    // Shuffle roles randomly
+    const shuffledRoles = [...roles].sort(() => Math.random() - 0.5)
+
+    // Create player data map
+    const newPlayerRoles = new Map<number, PlayerData>()
+
+    for (let i = 0; i < totalPlayers; i++) {
+      const playerNumber = i + 1
+      const role = shuffledRoles[i]
+
+      let word: string
+      switch (role) {
+        case "civilian":
+          word = wordPair.civilianWord
+          break
+        case "undercover":
+          word = wordPair.undercoverWord
+          break
+        case "mrwhite":
+          word = MR_WHITE_MESSAGE
+          break
+        default:
+          word = "Unknown"
+      }
+
+      newPlayerRoles.set(playerNumber, {
+        playerNumber,
+        role,
+        word,
+      })
+    }
+
+    setPlayerRoles(newPlayerRoles)
+  }
 
   const handleCardClick = (playerNumber: number) => {
     setSelectedPlayer(playerNumber)
@@ -89,6 +158,11 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
   const getNamedPlayersCount = () => {
     return playerNames.size
   }
+
+    const getSelectedPlayerData = (): PlayerData | null => {
+        if (!selectedPlayer) return null
+        return playerRoles.get(selectedPlayer) || null
+    }
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -236,12 +310,13 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
 
             {/* Player Name Modal */}
             <PlayerNameModal
-              open={modalOpen}
-              playerNumber={selectedPlayer || 0}
-              currentName={selectedPlayer ? playerNames.get(selectedPlayer) || "" : ""}
-              setModalOpen={setModalOpen}
-              onClose={handleModalClose}
-              onSave={handleSavePlayerName}
+                open={modalOpen}
+                playerNumber={selectedPlayer || 0}
+                currentName={selectedPlayer ? playerNames.get(selectedPlayer) || "" : ""}
+                setModalOpen={setModalOpen}
+                playerData={getSelectedPlayerData()}
+                onClose={handleModalClose}
+                onSave={handleSavePlayerName}
             />
           </Box>
         </Container>
