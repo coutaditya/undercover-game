@@ -1,26 +1,37 @@
-import { Card, CardContent, Typography, Box, Chip } from "@mui/material"
-import { Person, Edit, Visibility } from "@mui/icons-material"
-import { useState } from "react"
+import { Card, CardContent, Typography, Box, Chip } from "@mui/material";
+import { Person, Edit, Visibility } from "@mui/icons-material";
+import { useState } from "react";
 
 interface GameCardProps {
-  playerNumber: number
-  playerName?: string
-  orderedPlayerNumber?: number
-  points: number
-  isEliminated: boolean
-  onClick: (playerNumber: number) => void
-  gameStarted: boolean
-  isFirst?: boolean
+  playerNumber: number;
+  playerName?: string;
+  orderedPlayerNumber?: number;
+  points: number;
+  isEliminated: boolean;
+  onClick: (playerNumber: number) => void;
+  gameStarted: boolean;
+  isFirst?: boolean;
+  hasViewedOnce?: boolean;
 }
 
-export default function GameCard({ playerNumber, playerName, orderedPlayerNumber, points, isEliminated, onClick, gameStarted = false, isFirst = false }: GameCardProps) {
-  const [isHovered, setIsHovered] = useState(false)
+export default function GameCard({
+  playerNumber,
+  playerName,
+  orderedPlayerNumber,
+  points,
+  isEliminated,
+  onClick,
+  gameStarted = false,
+  isFirst = false,
+  hasViewedOnce = false,
+}: GameCardProps) {
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleClick = () => {
     if (!isEliminated) {
-        onClick(playerNumber)
+      onClick(playerNumber);
     }
-  }
+  };
 
   const getCardColors = (hover: boolean = false) => {
     const baseTheme = {
@@ -32,10 +43,11 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
       textColor: "#667eea",
       gradientBg: "linear-gradient(45deg, #667eea, #764ba2)",
       shadowColor: "rgba(102, 126, 234, 0.4)",
-    }
+    };
 
     const redTheme = {
-      background: "linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.05))",
+      background:
+        "linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.05))",
       border: "2px solid rgba(255, 107, 107, 0.5)",
       hoverBorder: "2px solid rgba(255, 107, 107, 0.8)",
       hoverShadow: "0 12px 32px rgba(255, 107, 107, 0.3)",
@@ -43,10 +55,11 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
       textColor: "#ff6b6b",
       gradientBg: "linear-gradient(45deg, #ff6b6b, #ff8a80)",
       shadowColor: "rgba(255, 107, 107, 0.4)",
-    }
+    };
 
     const greenTheme = {
-      background: "linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05))",
+      background:
+        "linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05))",
       border: "2px solid rgba(76, 175, 80, 0.5)",
       hoverBorder: "2px solid rgba(76, 175, 80, 0.8)",
       hoverShadow: "0 12px 32px rgba(76, 175, 80, 0.3)",
@@ -54,31 +67,31 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
       textColor: "#4caf50",
       gradientBg: "linear-gradient(45deg, #4caf50, #66bb6a)",
       shadowColor: "rgba(76, 175, 80, 0.4)",
-    }
+    };
 
     const greyTheme = {
-        background: "rgba(255,255,255,0.1)",
-        border: "2px solid rgba(255, 255, 255, 0.3)",
-        hoverBorder: "2px solid rgba(255, 255, 255, 0.5)",
-        hoverShadow: "0 12px 32px rgba(255, 255, 255, 0.2)",
-        iconColor: "#888",
-        textColor: "#888",
-        gradientBg: "linear-gradient(45deg, #888, #aaa)",
-        shadowColor: "rgba(136, 136, 136, 0.4)",
-    }
+      background: "rgba(255,255,255,0.1)",
+      border: "2px solid rgba(255, 255, 255, 0.3)",
+      hoverBorder: "2px solid rgba(255, 255, 255, 0.5)",
+      hoverShadow: "0 12px 32px rgba(255, 255, 255, 0.2)",
+      iconColor: "#888",
+      textColor: "#888",
+      gradientBg: "linear-gradient(45deg, #888, #aaa)",
+      shadowColor: "rgba(136, 136, 136, 0.4)",
+    };
 
     if (hover && gameStarted) {
-      return redTheme
-    } else if (playerName && !gameStarted) {
-      return greenTheme
+      return redTheme;
+    } else if (playerName && !gameStarted && hasViewedOnce) {
+      return greenTheme;
     } else if (isEliminated) {
-        return greyTheme
+      return greyTheme;
     } else {
-      return baseTheme
+      return baseTheme;
     }
-  }
+  };
 
-  const colors = getCardColors(isHovered)
+  const colors = getCardColors(isHovered);
   return (
     <Card
       onClick={handleClick}
@@ -120,7 +133,7 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
       )}
 
       {/* Ready Badge */}
-      {playerName && !gameStarted && (
+      {playerName && !gameStarted && hasViewedOnce && (
         <Box
           sx={{
             position: "absolute",
@@ -248,7 +261,6 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
               fontFamily: "'Inter', sans-serif",
               fontWeight: 500,
               fontSize: "0.8rem",
-
             }}
           >
             Points:
@@ -292,5 +304,5 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
         </Typography>
       </CardContent>
     </Card>
-  )
+  );
 }

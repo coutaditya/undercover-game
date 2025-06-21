@@ -23,14 +23,15 @@ interface GamePageProps {
   numberOfMrWhite: number
 }
 
-interface PlayerData {  
-    playerNumber: number
-    playerName: string
-    role: PlayerRole
-    word: string
-    points: number
-    isFirst?: boolean
-    isEliminated: boolean
+interface PlayerData {
+  playerNumber: number
+  playerName: string
+  role: PlayerRole
+  word: string
+  points: number
+  isFirst?: boolean
+  isEliminated: boolean
+  hasViewedOnce: boolean
 }
 
 const darkTheme = createTheme({
@@ -132,6 +133,7 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
         playerName: playerRoles.get(playerNumber)?.playerName || "",
         points: playerRoles.get(playerNumber)?.points ?? 0,
         isEliminated: false,
+        hasViewedOnce: false,
       })
     }
 
@@ -147,6 +149,10 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
 
     setSelectedPlayer(playerNumber)
     setModalOpen(true)
+    if (playerData) {
+      playerData.hasViewedOnce = true
+    }
+
   }
 
   const handleModalClose = () => {
@@ -208,30 +214,30 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
   }
 
   const handleStartRound = () => {
-      // Filter non-Mr. White players
-      const eligible = Array.from(playerRoles.entries())
-        .filter(([_, data]) => data.role !== MR_WHITE_ROLE)
-        .map(([num]) => num)
+    // Filter non-Mr. White players
+    const eligible = Array.from(playerRoles.entries())
+      .filter(([_, data]) => data.role !== MR_WHITE_ROLE)
+      .map(([num]) => num)
 
-      if (eligible.length === 0) {
-        alert("No eligible player to start the game (non-Mr. White).")
-        return
-      }
-
-      const startingPlayer = eligible[Math.floor(Math.random() * eligible.length)] || 0
-
-      const allPlayerNumbers = Array.from({ length: totalPlayers }, (_, i) => i + 1)
-      const startingIndex = allPlayerNumbers.indexOf(startingPlayer)
-
-      const reordered = [
-        ...allPlayerNumbers.slice(startingIndex),
-        ...allPlayerNumbers.slice(0, startingIndex)
-      ]
-
-      console.log(reordered)
-      setOrderedPlayerNumbers(reordered)
-      setGameStarted(true)
+    if (eligible.length === 0) {
+      alert("No eligible player to start the game (non-Mr. White).")
+      return
     }
+
+    const startingPlayer = eligible[Math.floor(Math.random() * eligible.length)] || 0
+
+    const allPlayerNumbers = Array.from({ length: totalPlayers }, (_, i) => i + 1)
+    const startingIndex = allPlayerNumbers.indexOf(startingPlayer)
+
+    const reordered = [
+      ...allPlayerNumbers.slice(startingIndex),
+      ...allPlayerNumbers.slice(0, startingIndex)
+    ]
+
+    console.log(reordered)
+    setOrderedPlayerNumbers(reordered)
+    setGameStarted(true)
+  }
 
   const generateCards = () => {
     const cards = []
@@ -253,12 +259,13 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
             onClick={handleCardClick}
             gameStarted={gameStarted}
             isFirst={gameStarted && i === 0}
-            points={playerRoles.get(playerNumber)?.points || 0} 
+            points={playerRoles.get(playerNumber)?.points || 0}
             isEliminated={playerRoles.get(playerNumber)?.isEliminated || false}
+            hasViewedOnce={playerRoles.get(playerNumber)?.hasViewedOnce || false}
           />
         </Box>
-        )
-      }
+      )
+    }
     return cards
   }
 
@@ -274,7 +281,9 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
     return players
   }
 
-  const allPlayersNamed = updatedPlayerNamesCount === totalPlayers
+  const allPlayersReady = Array.from(playerRoles.values()).every(
+    (player) => player.playerName.trim() !== "" && player.hasViewedOnce
+  )
 
   const getSelectedPlayerData = (): PlayerData | null => {
     if (!selectedPlayer) return null
@@ -460,10 +469,10 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
                 onClick={handleStartRound}
                 startIcon={<PlayArrow />}
                 variant="contained"
-                disabled={!allPlayersNamed || gameStarted}
+                disabled={!allPlayersReady || gameStarted}
                 sx={{
-                  background: allPlayersNamed && !gameStarted ? "linear-gradient(45deg, #4caf50, #66bb6a)" : "rgba(255,255,255,0.1)",
-                  color: allPlayersNamed && !gameStarted ? "white" : "rgba(255,255,255,0.3)",
+                  background: allPlayersReady && !gameStarted ? "linear-gradient(45deg, #4caf50, #66bb6a)" : "rgba(255,255,255,0.1)",
+                  color: allPlayersReady && !gameStarted ? "white" : "rgba(255,255,255,0.3)",
                   fontFamily: "'Inter', sans-serif",
                   fontWeight: 600,
                   px: 4,
@@ -471,11 +480,11 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
                   borderRadius: "12px",
                   textTransform: "none",
                   fontSize: "1.1rem",
-                  boxShadow: allPlayersNamed && !gameStarted ? "0 4px 16px rgba(76, 175, 80, 0.4)" : "none",
+                  boxShadow: allPlayersReady && !gameStarted ? "0 4px 16px rgba(76, 175, 80, 0.4)" : "none",
                   "&:hover": {
-                    background: allPlayersNamed && !gameStarted ? "linear-gradient(45deg, #388e3c, #4caf50)" : "rgba(255,255,255,0.1)",
-                    transform: allPlayersNamed && !gameStarted ? "translateY(-2px)" : "none",
-                    boxShadow: allPlayersNamed && !gameStarted ? "0 6px 20px rgba(76, 175, 80, 0.5)" : "none",
+                    background: allPlayersReady && !gameStarted ? "linear-gradient(45deg, #388e3c, #4caf50)" : "rgba(255,255,255,0.1)",
+                    transform: allPlayersReady && !gameStarted ? "translateY(-2px)" : "none",
+                    boxShadow: allPlayersReady && !gameStarted ? "0 6px 20px rgba(76, 175, 80, 0.5)" : "none",
                   },
                   "&:disabled": {
                     cursor: "not-allowed",
@@ -487,13 +496,13 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
 
             {/* Player Name Modal */}
             <PlayerNameModal
-                open={modalOpen}
-                playerNumber={selectedPlayer || 0}
-                currentName={selectedPlayer ? playerRoles.get(selectedPlayer)?.playerName || "" : ""}
-                setModalOpen={setModalOpen}
-                playerData={getSelectedPlayerData()}
-                onClose={handleModalClose}
-                onSave={handleSavePlayerName}
+              open={modalOpen}
+              playerNumber={selectedPlayer || 0}
+              currentName={selectedPlayer ? playerRoles.get(selectedPlayer)?.playerName || "" : ""}
+              setModalOpen={setModalOpen}
+              playerData={getSelectedPlayerData()}
+              onClose={handleModalClose}
+              onSave={handleSavePlayerName}
             />
             {/* Leaderboard Modal */}
             <Leaderboard
