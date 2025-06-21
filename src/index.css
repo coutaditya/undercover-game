@@ -3,8 +3,8 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: 'BruceForever';
-  src: url('/fonts/BruceForeverRegular-X3jd2.ttf') format('truetype');
+  font-family: 'Paralucent-light';
+  src: url('/fonts/paralucent-light.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -14,9 +14,11 @@ html, body, #root {
   margin: 0;
   padding: 0;
   height: 100%;
+  font-family: 'Paralucent-light';
 }
 
 /* Custom global styles below if needed */
 body {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Paralucent-light';
+  letter-spacing: 0.15em;
 }

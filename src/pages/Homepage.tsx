@@ -28,7 +28,7 @@ const darkTheme = createTheme({
         },
     },
     typography: {
-        fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+        fontFamily: '"Paralucent-light", "Roboto", "Helvetica", "Arial", sans-serif',
     },
 })
 
@@ -147,7 +147,9 @@ export function Homepage() {
                             <Typography
                                 variant="h5"
                                 className="text-white font-medium"
-                                sx={{ textShadow: "1px 1px 3px rgba(0,0,0,0.8)" }}
+                                sx={{ 
+                                    textShadow: "1px 1px 3px rgba(0,0,0,0.8)",
+                                }}
                             >
                                 Number of Civilians = {civilians}
                             </Typography>
@@ -195,6 +197,7 @@ export function Homepage() {
                                         transform: "translateY(-2px)",
                                     },
                                     transition: "all 0.3s ease",
+                                    letterSpacing: "0.15em", // adds spacing between letters
                                 }}
                                 onClick={handleStartGame}
                             >
@@ -214,7 +217,9 @@ export function Homepage() {
                         >
                             <Box className="flex justify-center items-center space-x-2 mb-4">
                                 <Security className="text-yellow-400" />
-                                <Typography variant="h6" className="text-yellow-400 font-bold">
+                                <Typography variant="h6" className="text-yellow-400 font-bold" sx={{
+                                    letterSpacing: "0.15em", // adds spacing between letters
+                                }}>
                                     Mission Briefing
                                 </Typography>
                             </Box>

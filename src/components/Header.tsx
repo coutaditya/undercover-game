@@ -15,7 +15,7 @@ export default function Header({ title = "UNDERCOVER", subtitle = "The Ultimate 
                 sx={{
                     fontSize: { xs: "3rem", md: "5rem" },
                     textShadow: "0 0 30px rgba(255, 255, 255, 0.3), 0 0 60px rgba(102, 126, 234, 0.2)",
-                    fontFamily: "'Inter', sans-serif",
+                    fontFamily: "'Paralucent-light'",
                     fontWeight: "bold",
                     letterSpacing: "0.15em",
                     display: "flex",
@@ -52,7 +52,7 @@ export default function Header({ title = "UNDERCOVER", subtitle = "The Ultimate 
                 className="text-gray-300 tracking-wide"
                 sx={{
                     textShadow: "1px 1px 3px rgba(0,0,0,0.8)",
-                    fontFamily: "'Inter', sans-serif",
+                    fontFamily: "'Paralucent-light'",
                     fontWeight: 400,
                     letterSpacing: "0.05em",
                     display: "flex",

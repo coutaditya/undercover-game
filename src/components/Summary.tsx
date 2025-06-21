@@ -5,8 +5,13 @@ import { Box, Typography } from "@mui/material"
 // undercovers: The number of undercovers
 // mrWhite: The number of mrWhite
 
+interface RoleSummaryProps {
+    civilians: number
+    undercovers: number
+    mrWhite: number
+}
 
-export default function RoleSummary({ civilians, undercovers, mrWhite }: { civilians: number, undercovers: number, mrWhite: number }) {
+export default function RoleSummary({ civilians, undercovers, mrWhite }: RoleSummaryProps) {
     return (
         <Box
             display="flex"
@@ -16,7 +21,7 @@ export default function RoleSummary({ civilians, undercovers, mrWhite }: { civil
             gap={2} // replaces space-x-6
         >
             <Typography variant="body1" sx={{ color: 'gray.300' }}>
-                <Box component="strong" sx={{ color: 'success.main' }}>{civilians}</Box> Innocent Civilians
+                <Box component="strong" sx={{ color: 'success.main' } }>{civilians}</Box> Innocent Civilians
             </Typography>
 
             <Typography variant="body1" sx={{ color: 'gray.300' }}>

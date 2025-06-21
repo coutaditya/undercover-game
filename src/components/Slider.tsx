@@ -67,12 +67,13 @@ export default function PlayerSlider({ value, onChange, min = 3, max = 12 }: Pla
           variant="h4"
           className="text-white font-bold text-center tracking-wide"
           sx={{
-            mb: 6, // adds vertical spacing after heading
+            mb: 4, // increases vertical spacing after heading
             textShadow: "2px 2px 8px rgba(0,0,0,0.7)",
             color: "#e5e5e5", // light gray (near white)
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Paralucent-light'",
             textAlign: "center",
             fontWeight: "bold",
+            letterSpacing: "0.15em", // adds spacing between letters
           }}
         >
           Select Players
@@ -109,7 +110,10 @@ export default function PlayerSlider({ value, onChange, min = 3, max = 12 }: Pla
             >
               {value}
             </Typography>
-            <Typography variant="body1" className="text-gray-300 mt-2">
+            <Typography variant="body1" className="text-gray-300 mt-2" sx={{
+              fontFamily: "'Paralucent-light'",
+              letterSpacing: "0.15em", // adds spacing between letters
+            }}>
               Total Players
             </Typography>
           </Box>
