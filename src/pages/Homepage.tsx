@@ -43,6 +43,11 @@ export function Homepage({totalPlayers = 6, undercovers = 1, mrWhite = 1, setTot
     const [civilians, setCivilians] = useState(totalPlayers - (undercovers + mrWhite))
     const navigate = useNavigate()
 
+    // Scroll to top when component mounts
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
+
     useEffect(() => {
         setCivilians(totalPlayers - (undercovers + mrWhite))
     }, [totalPlayers, undercovers, mrWhite])

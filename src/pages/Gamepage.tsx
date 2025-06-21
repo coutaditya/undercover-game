@@ -1,10 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import { Box, Container, Typography, Chip, ThemeProvider, createTheme, CssBaseline } from "@mui/material"
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { Box, Container, Typography, Chip, ThemeProvider, createTheme, CssBaseline, Button } from "@mui/material"
 import GameCard from "../components/Card"
 import PlayerNameModal from "../components/Modal"
 import Header from "../components/Header"
+import { ArrowBack } from "@mui/icons-material"
 
 interface GamePageProps {
   totalPlayers: number
@@ -36,10 +38,15 @@ const darkTheme = createTheme({
 
 export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: GamePageProps) {
   const numberOfCivilians = totalPlayers - (numberOfUndercover + numberOfMrWhite)
-
+  const navigate = useNavigate()
   const [playerNames, setPlayerNames] = useState<Map<number, string>>(new Map())
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null)
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   const handleCardClick = (playerNumber: number) => {
     setSelectedPlayer(playerNumber)
@@ -58,6 +65,11 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
       return newMap
     })
   }
+
+  const handleGoBack = () => {
+    navigate("/")
+  }
+
 
   const generateCards = () => {
     const cards = []
@@ -191,6 +203,36 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
                 </Typography>
               </Box>
             )}
+            {/* Restart Game Button */}
+            <Box className="flex justify-center pt-8">
+              <Button
+                onClick={handleGoBack}
+                startIcon={<ArrowBack />}
+                variant="outlined"
+                sx={{
+                  color: "rgba(255,255,255,0.8)",
+                  borderColor: "rgba(255,255,255,0.3)",
+                  fontFamily: "'Inter', sans-serif",
+                  fontWeight: 600,
+                  px: 4,
+                  py: 2,
+                  borderRadius: "12px",
+                  textTransform: "none",
+                  fontSize: "1.1rem",
+                  backdropFilter: "blur(10px)",
+                  background: "rgba(255,255,255,0.05)",
+                  "&:hover": {
+                    borderColor: "#667eea",
+                    backgroundColor: "rgba(102, 126, 234, 0.1)",
+                    color: "#667eea",
+                    transform: "translateY(-2px)",
+                  },
+                  transition: "all 0.3s ease",
+                }}
+              >
+                Restart Game
+              </Button>
+            </Box>
 
             {/* Player Name Modal */}
             <PlayerNameModal
