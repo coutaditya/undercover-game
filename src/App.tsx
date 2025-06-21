@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-// import { useState } from 'react'
-import Homepage from './pages/Homepage'
+import { Homepage } from './pages/Homepage'
+import { Gamepage } from './pages/Gamepage'
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -9,6 +9,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Homepage />} />
+        <Route path="/game" element={<Gamepage />} />
       </Routes>
     </BrowserRouter>
   )
