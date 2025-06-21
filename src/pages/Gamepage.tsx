@@ -1,99 +1,209 @@
+"use client"
+
 import { useState } from "react"
-import { Box, Container, Grid, Typography, Chip } from "@mui/material"
+import { Box, Container, Typography, Chip, ThemeProvider, createTheme, CssBaseline } from "@mui/material"
 import GameCard from "../components/Card"
 import PlayerNameModal from "../components/Modal"
+import Header from "../components/Header"
 
 interface GamePageProps {
-    totalPlayers: number
-    numberOfUndercover: number
-    numberOfMrWhite: number
-  }
-  
+  totalPlayers: number
+  numberOfUndercover: number
+  numberOfMrWhite: number
+}
+
+const darkTheme = createTheme({
+  palette: {
+    mode: "dark",
+    primary: {
+      main: "#667eea",
+    },
+    secondary: {
+      main: "#4ecdc4",
+    },
+    error: {
+      main: "#ff6b6b",
+    },
+    background: {
+      default: "#0a0a0a",
+      paper: "rgba(255,255,255,0.05)",
+    },
+  },
+  typography: {
+    fontFamily: '"Paralucent"',
+  },
+})
+
 export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: GamePageProps) {
-    const numberOfCivilians = totalPlayers - (numberOfUndercover + numberOfMrWhite)
+  const numberOfCivilians = totalPlayers - (numberOfUndercover + numberOfMrWhite)
 
-    const [playerNames, setPlayerNames] = useState<Map<number, string>>(new Map())
+  const [playerNames, setPlayerNames] = useState<Map<number, string>>(new Map())
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null)
 
-    const [modalOpen, setModalOpen] = useState(false)
-    const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null)
+  const handleCardClick = (playerNumber: number) => {
+    setSelectedPlayer(playerNumber)
+    setModalOpen(true)
+  }
 
-    const handleCardClick = (playerNumber: number) => {
-        setSelectedPlayer(playerNumber)
-        setModalOpen(true)
+  const handleModalClose = () => {
+    setModalOpen(false)
+    setSelectedPlayer(null)
+  }
+
+  const handleSavePlayerName = (playerNumber: number, playerName: string) => {
+    setPlayerNames((prev) => {
+      const newMap = new Map(prev)
+      newMap.set(playerNumber, playerName)
+      return newMap
+    })
+  }
+
+  const generateCards = () => {
+    const cards = []
+
+    for (let i = 0; i < totalPlayers; i++) {
+      const playerNumber = i + 1
+      cards.push(
+        <Box key={`player-${playerNumber}`} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%', lg: '25%' }, p: 1 }}>
+          <GameCard playerNumber={playerNumber} playerName={playerNames.get(playerNumber)} onClick={handleCardClick} />
+        </Box>,
+      )
     }
 
-    const handleModalClose = () => {
-        setModalOpen(false)
-        setSelectedPlayer(null)
-    }
+    return cards
+  }
 
-    const handleSavePlayerName = (playerNumber: number, playerName: string) => {
-        setPlayerNames((prev) => {
-            const newMap = new Map(prev)
-            newMap.set(playerNumber, playerName)
-            return newMap
-        })
-    }
+  const getNamedPlayersCount = () => {
+    return playerNames.size
+  }
 
-    const generateCards = () => {
-        const cards = []
+  return (
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <Box
+        className="min-h-screen relative overflow-hidden"
+        sx={{
+          background: `
+            radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(78, 205, 196, 0.2) 0%, transparent 50%),
+            linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)
+          `,
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `
+              repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 98px,
+                rgba(255,255,255,0.02) 100px
+              ),
+              repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 98px,
+                rgba(255,255,255,0.02) 100px
+              )
+            `,
+            pointerEvents: "none",
+          },
+        }}
+      >
+        <Container maxWidth="lg" className="relative z-10 py-8">
+          <Box className="space-y-8">
+            {/* Header */}
+            <Header title="MISSION SETUP" subtitle="Configure Your Agents" />
 
-        for (let i = 0; i < totalPlayers; i++) {
-            const playerNumber = i + 1
-            cards.push(
-            <Grid key={`player-${playerNumber}`}>
-                <GameCard playerNumber={playerNumber} playerName={playerNames.get(playerNumber)} onClick={handleCardClick} />
-            </Grid>,
-            )
-        }
-
-        return cards
-    }
-
-    const getNamedPlayersCount = () => {
-        return playerNames.size
-    }
-
-    return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-          <Box sx={{ textAlign: "center", mb: 4 }}>
-            <Typography variant="h3" component="h1" gutterBottom>
-              Undercover Game
-            </Typography>
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              Total Players: {totalPlayers} | Named Players: {getNamedPlayersCount()}
-            </Typography>
-            <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2, flexWrap: "wrap" }}>
-              <Chip label={`${numberOfCivilians} Civilians`} sx={{ backgroundColor: "#4caf50", color: "white" }} />
-              <Chip label={`${numberOfUndercover} Undercover`} sx={{ backgroundColor: "#ff9800", color: "white" }} />
-              <Chip label={`${numberOfMrWhite} Mr. White`} sx={{ backgroundColor: "#f44336", color: "white" }} />
-            </Box>
-          </Box>
-    
-          {totalPlayers > 0 ? (
-            <Box sx={{ flexGrow: 1 }}>
-              <Grid container spacing={3} justifyContent="center" alignItems="stretch">
-                {generateCards()}
-              </Grid>
-            </Box>
-          ) : (
-            <Box sx={{ textAlign: "center", mt: 4 }}>
-              <Typography variant="h6" color="text.secondary">
-                No players configured. Please set up the game first.
+            {/* Game Stats */}
+            <Box
+              className="text-center p-6 rounded-2xl"
+              sx={{
+                background: "rgba(0,0,0,0.2)",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                marginTop: "2rem",
+              }}
+            >
+              <Typography
+                variant="h6"
+                className="text-white"
+                sx={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontWeight: 600,
+                  color: 'white',
+                  mb: 3, // margin bottom (24px)
+                }}
+              >
+                Players: {totalPlayers} | Named: {getNamedPlayersCount()}
               </Typography>
+
+              <Box className="flex justify-center gap-4 flex-wrap">
+                <Chip
+                  label={`${numberOfCivilians} Civilians`}
+                  sx={{
+                    backgroundColor: "#4caf50",
+                    color: "white",
+                    fontFamily: "'Inter', sans-serif",
+                    fontWeight: 600,
+                    boxShadow: "0 4px 12px rgba(76, 175, 80, 0.3)",
+                  }}
+                />
+                <Chip
+                  label={`${numberOfUndercover} Undercover`}
+                  sx={{
+                    backgroundColor: "#667eea",
+                    color: "white",
+                    fontFamily: "'Inter', sans-serif",
+                    fontWeight: 600,
+                    boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)",
+                  }}
+                />
+                <Chip
+                  label={`${numberOfMrWhite} Mr. White`}
+                  sx={{
+                    backgroundColor: "#ff6b6b",
+                    color: "white",
+                    fontFamily: "'Inter', sans-serif",
+                    fontWeight: 600,
+                    boxShadow: "0 4px 12px rgba(255, 107, 107, 0.3)",
+                  }}
+                />
+              </Box>
             </Box>
-          )}
+
+            {/* Player Cards Grid */}
+            {totalPlayers > 0 ? (
+              <Box sx={{ flexGrow: 1 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: "center" }}>
+                  {generateCards()}
+                </Box>
+              </Box>
+            ) : (
+              <Box className="text-center mt-8">
+                <Typography variant="h6" className="text-gray-400" sx={{ fontFamily: "'Inter', sans-serif" }}>
+                  No players configured. Please set up the game first.
+                </Typography>
+              </Box>
+            )}
 
             {/* Player Name Modal */}
             <PlayerNameModal
-                open={modalOpen}
-                playerNumber={selectedPlayer || 0}
-                currentName={selectedPlayer ? playerNames.get(selectedPlayer) || "" : ""}
-                setModalOpen={setModalOpen}
-                onClose={handleModalClose}
-                onSave={handleSavePlayerName}
+              open={modalOpen}
+              playerNumber={selectedPlayer || 0}
+              currentName={selectedPlayer ? playerNames.get(selectedPlayer) || "" : ""}
+              setModalOpen={setModalOpen}
+              onClose={handleModalClose}
+              onSave={handleSavePlayerName}
             />
+          </Box>
         </Container>
-    )
+      </Box>
+    </ThemeProvider>
+  )
 }
-  

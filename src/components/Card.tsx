@@ -1,4 +1,5 @@
-import type React from "react"
+"use client"
+
 import { Card, CardContent, Typography, Box, Chip } from "@mui/material"
 import { Person, Edit, Visibility } from "@mui/icons-material"
 
@@ -8,11 +9,10 @@ interface GameCardProps {
   onClick: (playerNumber: number) => void
 }
 
-const GameCard: React.FC<GameCardProps> = ({ playerNumber, playerName, onClick }) => {
-
-    const handleClick = () => {
-        onClick(playerNumber)
-    }
+export default function GameCard({ playerNumber, playerName, onClick }: GameCardProps) {
+  const handleClick = () => {
+    onClick(playerNumber)
+  }
 
   return (
     <Card
@@ -23,36 +23,42 @@ const GameCard: React.FC<GameCardProps> = ({ playerNumber, playerName, onClick }
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: playerName ? "#e8f5e8" : "#f5f5f5",
-        border: playerName ? "2px solid #4caf50" : "2px solid #1976d2",
-        transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+        background: playerName
+          ? "linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05))"
+          : "rgba(255,255,255,0.05)",
+        backdropFilter: "blur(10px)",
+        border: playerName ? "2px solid rgba(76, 175, 80, 0.5)" : "2px solid rgba(102, 126, 234, 0.5)",
+        borderRadius: "16px",
+        transition: "all 0.3s ease-in-out",
         cursor: "pointer",
         position: "relative",
         "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
+          transform: "translateY(-8px)",
+          boxShadow: playerName ? "0 12px 32px rgba(76, 175, 80, 0.3)" : "0 12px 32px rgba(102, 126, 234, 0.3)",
+          border: playerName ? "2px solid rgba(76, 175, 80, 0.8)" : "2px solid rgba(102, 126, 234, 0.8)",
         },
       }}
     >
-
-    <Box
-    sx={{
-        position: "absolute",
-        top: 8,
-        right: 8,
-        color: playerName ? "#4caf50" : "#1976d2",
-        opacity: 0.7,
-    }}
-    >
+      {/* Edit Icon */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 12,
+          right: 12,
+          color: playerName ? "#4caf50" : "#667eea",
+          opacity: 0.8,
+        }}
+      >
         <Edit fontSize="small" />
-    </Box>
+      </Box>
 
-    {playerName && (
+      {/* Ready Badge */}
+      {playerName && (
         <Box
           sx={{
             position: "absolute",
-            top: 8,
-            left: 8,
+            top: 12,
+            left: 12,
           }}
         >
           <Chip
@@ -63,6 +69,9 @@ const GameCard: React.FC<GameCardProps> = ({ playerNumber, playerName, onClick }
               backgroundColor: "#4caf50",
               color: "white",
               fontSize: "0.7rem",
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 600,
+              boxShadow: "0 4px 12px rgba(76, 175, 80, 0.4)",
             }}
           />
         </Box>
@@ -77,53 +86,68 @@ const GameCard: React.FC<GameCardProps> = ({ playerNumber, playerName, onClick }
           padding: 3,
         }}
       >
+        {/* Player Icon */}
         <Box
           sx={{
-            color: playerName ? "#4caf50" : "#1976d2",
+            color: playerName ? "#4caf50" : "#e5e5e5",
             fontSize: "3rem",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
           }}
         >
           <Person fontSize="inherit" />
         </Box>
+
+        {/* Player Name */}
         {playerName ? (
           <Typography
             variant="h6"
             component="h3"
             sx={{
               color: "#4caf50",
+              fontFamily: "'Inter', sans-serif",
               fontWeight: "bold",
               textAlign: "center",
               wordBreak: "break-word",
+              textShadow: "0 2px 4px rgba(0,0,0,0.5)",
             }}
           >
             {playerName}
           </Typography>
         ) : (
-        <Typography
-          variant="h6"
-          component="h3"
-          sx={{
-            color: "#1976d2",
-            fontWeight: "bold",
-            textAlign: "center",
-          }}
-        >
-          Player
-        </Typography>
+          <Typography
+            variant="h6"
+            component="h3"
+            sx={{
+              color: "#e5e5e5",
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: "bold",
+              textAlign: "center",
+              textShadow: "0 2px 4px rgba(0,0,0,0.5)",
+            }}
+          >
+            Agent
+          </Typography>
         )}
+
+        {/* Player Number */}
         <Typography
           variant="h5"
           sx={{
-            color: playerName ? "#4caf50" : "#1976d2",
+            color: "white",
+            fontFamily: "'Inter', sans-serif",
             fontWeight: "bold",
-            backgroundColor: playerName ? "#c8e6c9" : "#e3f2fd",
-            padding: "4px 12px",
-            borderRadius: "16px",
-            minWidth: "40px",
+            background: playerName
+              ? "linear-gradient(45deg, #4caf50, #66bb6a)"
+              : "linear-gradient(45deg, #667eea, #764ba2)",
+            padding: "8px 16px",
+            borderRadius: "20px",
+            minWidth: "48px",
             textAlign: "center",
+            boxShadow: playerName ? "0 4px 16px rgba(76, 175, 80, 0.4)" : "0 4px 16px rgba(102, 126, 234, 0.4)",
+            textShadow: "0 2px 4px rgba(0,0,0,0.3)",
           }}
         >
           {playerNumber}
@@ -132,5 +156,3 @@ const GameCard: React.FC<GameCardProps> = ({ playerNumber, playerName, onClick }
     </Card>
   )
 }
-
-export default GameCard

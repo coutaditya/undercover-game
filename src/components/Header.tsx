@@ -28,8 +28,8 @@ export default function Header({ title = "UNDERCOVER", subtitle = "The Ultimate 
                     <Box
                         key={index}
                         component="span"
-                        className="text-white"
                         sx={{
+                            color: "#e5e5e5",
                             animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
                             "@keyframes fadeInUp": {
                                 "0%": {

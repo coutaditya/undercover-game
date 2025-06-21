@@ -14,7 +14,7 @@ interface PlayerNameModalProps {
 
 type ModalView = "nameInput" | "wordDisplay"
 
-const PlayerNameModal: React.FC<PlayerNameModalProps> = ({ open, playerNumber, currentName = "", setModalOpen, onClose, onSave }) => {
+export default function PlayerNameModal({ open, playerNumber, currentName = "", setModalOpen, onClose, onSave }: PlayerNameModalProps) {
   const [playerName, setPlayerName] = useState(currentName)
   const [modalView, setModalView] = useState<ModalView>("nameInput")
   const [hasName, setHasName] = useState(false)
@@ -81,46 +81,129 @@ const PlayerNameModal: React.FC<PlayerNameModalProps> = ({ open, playerNumber, c
 
   const renderNameInputView = () => (
     <>
-      <DialogTitle>
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(135deg, #667eea, #764ba2)",
+          color: "white",
+        }}
+      >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Person sx={{ color: "#1976d2" }} />
-          <Typography variant="h6">Player {playerNumber}</Typography>
+          <Person sx={{ color: "white" }} />
+          <Typography variant="h6" sx={{ fontFamily: "'Inter', sans-serif", fontWeight: 600 }}>
+            Agent {playerNumber}
+          </Typography>
         </Box>
       </DialogTitle>
-      <DialogContent>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Enter the name for Player {playerNumber}
+      <DialogContent
+        sx={{
+          background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)",
+          color: "white",
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{
+            mb: 2,
+            color: "rgba(255,255,255,0.7)",
+            fontFamily: "'Inter', sans-serif",
+          }}
+        >
+          Enter the codename for Agent {playerNumber}
         </Typography>
         <TextField
           autoFocus
           fullWidth
-          label="Player Name"
+          label="Agent Codename"
           variant="outlined"
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder={`Player ${playerNumber}`}
-          sx={{ mt: 1 }}
+          placeholder={`Agent ${playerNumber}`}
+          sx={{
+            mt: 1,
+            "& .MuiOutlinedInput-root": {
+              color: "white",
+              fontFamily: "'Inter', sans-serif",
+              "& fieldset": {
+                borderColor: "rgba(255,255,255,0.3)",
+              },
+              "&:hover fieldset": {
+                borderColor: "#667eea",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#667eea",
+              },
+            },
+            "& .MuiInputLabel-root": {
+              color: "rgba(255,255,255,0.7)",
+              fontFamily: "'Inter', sans-serif",
+              "&.Mui-focused": {
+                color: "#667eea",
+              },
+            },
+          }}
         />
       </DialogContent>
-      <DialogActions sx={{ p: 3, pt: 1, flexDirection: "column", gap: 1 }}>
+      <DialogActions
+        sx={{
+          p: 3,
+          pt: 1,
+          flexDirection: "column",
+          gap: 1,
+          background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)",
+        }}
+      >
         <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
-          <Button onClick={handleClose} color="secondary" sx={{ flex: 1 }}>
+          <Button
+            onClick={handleClose}
+            sx={{
+              flex: 1,
+              color: "rgba(255,255,255,0.7)",
+              borderColor: "rgba(255,255,255,0.3)",
+              fontFamily: "'Inter', sans-serif",
+              "&:hover": {
+                borderColor: "rgba(255,255,255,0.5)",
+              },
+            }}
+            variant="outlined"
+          >
             Cancel
           </Button>
-          <Button onClick={handleSave} variant="contained" disabled={!playerName.trim()} sx={{ flex: 1 }}>
+          <Button
+            onClick={handleSave}
+            variant="contained"
+            disabled={!playerName.trim()}
+            sx={{
+              flex: 1,
+              background: "linear-gradient(45deg, #667eea, #764ba2)",
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 600,
+              "&:hover": {
+                background: "linear-gradient(45deg, #5a6fd8, #6a4190)",
+              },
+            }}
+          >
             Save
           </Button>
         </Box>
         {hasName && (
           <>
-            <Divider sx={{ width: "100%", my: 1 }} />
+            <Divider sx={{ width: "100%", my: 1, borderColor: "rgba(255,255,255,0.1)" }} />
             <Button
               onClick={handleSeeWord}
               variant="outlined"
               startIcon={<Visibility />}
-              sx={{ width: "100%" }}
-              color="success"
+              sx={{
+                width: "100%",
+                color: "#4caf50",
+                borderColor: "#4caf50",
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 600,
+                "&:hover": {
+                  borderColor: "#66bb6a",
+                  backgroundColor: "rgba(76, 175, 80, 0.1)",
+                },
+              }}
             >
               See Word
             </Button>
@@ -132,47 +215,107 @@ const PlayerNameModal: React.FC<PlayerNameModalProps> = ({ open, playerNumber, c
 
   const renderWordDisplayView = () => (
     <>
-      <DialogTitle>
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(135deg, #4caf50, #66bb6a)",
+          color: "white",
+        }}
+      >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Person sx={{ color: "#4caf50" }} />
-          <Typography variant="h6">{playerName || `Player ${playerNumber}`}</Typography>
+          <Person sx={{ color: "white" }} />
+          <Typography variant="h6" sx={{ fontFamily: "'Inter', sans-serif", fontWeight: 600 }}>
+            {playerName || `Agent ${playerNumber}`}
+          </Typography>
         </Box>
       </DialogTitle>
-      <DialogContent>
+      <DialogContent
+        sx={{
+          background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)",
+          color: "white",
+        }}
+      >
         <Box sx={{ textAlign: "center", py: 4 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Your word is:
+          <Typography
+            variant="body2"
+            sx={{
+              mb: 3,
+              color: "rgba(255,255,255,0.7)",
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            Your secret word is:
           </Typography>
           <Box
             sx={{
-              backgroundColor: "#e8f5e8",
+              background: "linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.1))",
               border: "2px solid #4caf50",
-              borderRadius: 2,
+              borderRadius: "16px",
               p: 4,
               mb: 3,
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 8px 32px rgba(76, 175, 80, 0.3)",
             }}
           >
             <Typography
               variant="h3"
               sx={{
                 color: "#4caf50",
+                fontFamily: "'Inter', sans-serif",
                 fontWeight: "bold",
                 textAlign: "center",
+                textShadow: "0 4px 8px rgba(0,0,0,0.5)",
               }}
             >
               {getPlayerWord(playerNumber)}
             </Typography>
           </Box>
-          <Typography variant="body2" color="text.secondary">
-            Remember this word for the game!
+          <Typography
+            variant="body2"
+            sx={{
+              color: "rgba(255,255,255,0.7)",
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            Remember this word for the mission!
           </Typography>
         </Box>
       </DialogContent>
-      <DialogActions sx={{ p: 3, pt: 1 }}>
-        <Button onClick={handleBackToName} startIcon={<ArrowBack />} color="primary" sx={{ flex: 1 }}>
+      <DialogActions
+        sx={{
+          p: 3,
+          pt: 1,
+          background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)",
+        }}
+      >
+        <Button
+          onClick={handleBackToName}
+          startIcon={<ArrowBack />}
+          sx={{
+            flex: 1,
+            color: "rgba(255,255,255,0.7)",
+            borderColor: "rgba(255,255,255,0.3)",
+            fontFamily: "'Inter', sans-serif",
+            "&:hover": {
+              borderColor: "rgba(255,255,255,0.5)",
+            },
+          }}
+          variant="outlined"
+        >
           Back to Name
         </Button>
-        <Button onClick={handleClose} variant="contained" color="success" sx={{ flex: 1 }}>
+        <Button
+          onClick={handleClose}
+          variant="contained"
+          sx={{
+            flex: 1,
+            background: "linear-gradient(45deg, #4caf50, #66bb6a)",
+            fontFamily: "'Inter', sans-serif",
+            fontWeight: 600,
+            "&:hover": {
+              background: "linear-gradient(45deg, #388e3c, #4caf50)",
+            },
+          }}
+        >
           Done
         </Button>
       </DialogActions>
@@ -180,10 +323,20 @@ const PlayerNameModal: React.FC<PlayerNameModalProps> = ({ open, playerNumber, c
   )
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: "16px",
+          overflow: "hidden",
+          border: "1px solid rgba(255,255,255,0.1)",
+        },
+      }}
+    >
       {modalView === "nameInput" ? renderNameInputView() : renderWordDisplayView()}
     </Dialog>
   )
 }
-
-export default PlayerNameModal
