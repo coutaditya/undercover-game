@@ -1,6 +1,7 @@
 "use client"
 
 import { Box, Typography } from "@mui/material"
+import { Security } from "@mui/icons-material"
 
 interface HeaderProps {
     title: string
@@ -54,9 +55,91 @@ export default function Header({ title = "UNDERCOVER", subtitle = "The Ultimate 
                     fontFamily: "'Inter', sans-serif",
                     fontWeight: 400,
                     letterSpacing: "0.05em",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.5rem",
                 }}
             >
-                {subtitle}
+                <Security 
+                    sx={{ 
+                        fontSize: "1.2rem", 
+                        color: "#ffd700",
+                        animation: "slideInLeft 0.8s ease-out 0.5s both",
+                        "@keyframes slideInLeft": {
+                            "0%": {
+                                opacity: 0,
+                                transform: "translateX(-30px)",
+                            },
+                            "100%": {
+                                opacity: 1,
+                                transform: "translateX(0)",
+                            },
+                        },
+                    }} 
+                />
+                <Box sx={{ display: "flex", gap: "0.05em" }}>
+                    {subtitle.split(" ").map((word, index) => (
+                        <Box key={index} sx={{ display: "flex" }}>
+                            <Box
+                                component="span"
+                                sx={{
+                                    animation: `slideInRight 0.6s ease-out ${0.8 + index * 0.1}s both`,
+                                    "@keyframes slideInRight": {
+                                        "0%": {
+                                            opacity: 0,
+                                            transform: "translateX(-20px)",
+                                        },
+                                        "100%": {
+                                            opacity: 1,
+                                            transform: "translateX(0)",
+                                        },
+                                    },
+                                }}
+                            >
+                                {word}
+                            </Box>
+                            {index < subtitle.split(" ").length - 1 && (
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        width: "0.3em",
+                                        animation: `slideInRight 0.6s ease-out ${0.8 + index * 0.1 + 0.05}s both`,
+                                        "@keyframes slideInRight": {
+                                            "0%": {
+                                                opacity: 0,
+                                                transform: "translateX(-20px)",
+                                            },
+                                            "100%": {
+                                                opacity: 1,
+                                                transform: "translateX(0)",
+                                            },
+                                        },
+                                    }}
+                                >
+                                    &nbsp;
+                                </Box>
+                            )}
+                        </Box>
+                    ))}
+                </Box>
+                <Security 
+                    sx={{ 
+                        fontSize: "1.2rem", 
+                        color: "#ffd700",
+                        animation: "slideInRight 0.8s ease-out 1.2s both",
+                        "@keyframes slideInRight": {
+                            "0%": {
+                                opacity: 0,
+                                transform: "translateX(30px)",
+                            },
+                            "100%": {
+                                opacity: 1,
+                                transform: "translateX(0)",
+                            },
+                        },
+                    }} 
+                />
             </Typography>
         </Box>
     )

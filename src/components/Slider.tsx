@@ -67,13 +67,12 @@ export default function PlayerSlider({ value, onChange, min = 3, max = 12 }: Pla
           variant="h4"
           className="text-white font-bold text-center tracking-wide"
           sx={{
+            mb: 6, // adds vertical spacing after heading
             textShadow: "2px 2px 8px rgba(0,0,0,0.7)",
-            background: "linear-gradient(45deg, #667eea, #764ba2)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            color: "#ffffff",
+            color: "#e5e5e5", // light gray (near white)
             fontFamily: "'Inter', sans-serif",
+            textAlign: "center",
+            fontWeight: "bold",
           }}
         >
           Select Players
