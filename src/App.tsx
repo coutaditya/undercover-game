@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useState } from 'react'
 import { Homepage } from './pages/Homepage'
 import { Gamepage } from './pages/Gamepage'
@@ -11,19 +11,30 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Homepage 
-        totalPlayers={totalPlayers}
-        setTotalPlayers={setTotalPlayers}
-        undercovers={undercovers}
-        setUndercovers={setUndercovers}
-        mrWhite={mrWhite}
-        setMrWhite={setMrWhite}
-        />} />
-        <Route path="/game" element={<Gamepage 
-        totalPlayers={totalPlayers}
-        numberOfUndercover={undercovers}
-        numberOfMrWhite={mrWhite}
-        />} />
+        <Route
+          path="/"
+          element={
+            <Homepage
+              totalPlayers={totalPlayers}
+              setTotalPlayers={setTotalPlayers}
+              undercovers={undercovers}
+              setUndercovers={setUndercovers}
+              mrWhite={mrWhite}
+              setMrWhite={setMrWhite}
+            />} />
+        <Route
+          path="/game"
+          element={
+            <Gamepage
+              totalPlayers={totalPlayers}
+              numberOfUndercover={undercovers}
+              numberOfMrWhite={mrWhite}
+            />} />
+        {/* Catch-all: Redirect unknown paths to home */}
+        <Route
+          path="*"
+          element={
+            <Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )
