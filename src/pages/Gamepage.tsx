@@ -8,7 +8,9 @@ import CustomButton from "../components/Button"
 import GameCard from "../components/Card"
 import PlayerNameModal from "../components/Modal"
 import Header from "../components/Header"
-import { WORD_PAIRS, MR_WHITE_MESSAGE, type PlayerRole, type WordPair } from "../constants/words"
+import Leaderboard from "../components/Leaderboard"
+import { WORD_PAIRS, MR_WHITE_MESSAGE, type PlayerRole } from "../constants/words"
+
 
 const CIVILIAN_ROLE = "civilian"
 const UNDERCOVER_ROLE = "undercover"
@@ -62,7 +64,8 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null)
   const [gameStarted, setGameStarted] = useState(false)
   const [orderedPlayerNumbers, setOrderedPlayerNumbers] = useState<number[]>([])
-
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false)
+  const [roundEnded, setRoundEnded] = useState(false)
 
   // Initialize game on mount (includes points reset)
   useEffect(() => {
@@ -167,13 +170,41 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
     })
   }
 
+  const handleExit = () => {
+    setLeaderboardOpen(true)
+  }
+
+  const handleLeaderboardClose = () => {
+    setLeaderboardOpen(false)
+  }
+
   const handleGoBack = () => {
     navigate("/")
   }
 
   const handleRestartRound = () => {
-    // Keep empty for now as requested
-    console.log("Restart Round clicked")
+    setLeaderboardOpen(true)
+  }
+
+  const handleLeaderboardExit = () => {
+    setLeaderboardOpen(false)
+    handleGoBack()
+  }
+
+  const handleLeaderboardRestartRound = () => {
+    setLeaderboardOpen(false)
+    // Reset game state for new round
+    setGameStarted(false)
+    setRoundEnded(false)
+    assignRolesAndWords()
+  }
+
+  const handleNextRound = () => {
+    console.log("Next Round clicked")
+    setLeaderboardOpen(false)
+    setRoundEnded(false)
+    setGameStarted(false)
+    assignRolesAndWords()
   }
 
   const handleStartRound = () => {
@@ -197,6 +228,7 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
         ...allPlayerNumbers.slice(0, startingIndex)
       ]
 
+      console.log(reordered)
       setOrderedPlayerNumbers(reordered)
       setGameStarted(true)
     }
@@ -208,15 +240,15 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
       : Array.from({ length: totalPlayers }, (_, i) => i + 1)
 
     for (let i = 0; i < playerList.length; i++) {
-      const originalPlayerNumber = playerList[i]
-      const orderedNumber = gameStarted ? i + 1 : originalPlayerNumber
-      const playerNumber = playerRoles.get(i + 1)?.playerNumber || i + 1
+      const originalPosition = playerList[i] || i + 1
+      const newPosition = gameStarted ? i + 1 : originalPosition
+      const playerNumber = playerRoles.get(originalPosition)?.playerNumber || originalPosition
 
       cards.push(
         <Box key={`player-${playerNumber}`} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%', lg: '25%' }, p: 1 }}>
           <GameCard
             playerNumber={playerNumber}
-            orderedPlayerNumber={orderedNumber}
+            orderedPlayerNumber={newPosition}
             playerName={playerRoles.get(playerNumber)?.playerName || ""}
             onClick={handleCardClick}
             gameStarted={gameStarted}
@@ -228,6 +260,18 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
         )
       }
     return cards
+  }
+
+  const getPlayersForLeaderboard = () => {
+    const players = []
+    for (let i = 1; i <= totalPlayers; i++) {
+      players.push({
+        playerNumber: i,
+        playerName: playerRoles.get(i)?.playerName || "",
+        points: playerRoles.get(i)?.points || 0,
+      })
+    }
+    return players
   }
 
   const allPlayersNamed = updatedPlayerNamesCount === totalPlayers
@@ -358,7 +402,7 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
               {/* Exit Button (Left) */}
               <CustomButton
                 text="Exit Game"
-                onClick={handleGoBack}
+                onClick={handleExit}
                 startIcon={<ArrowBack />}
                 variant="outlined"
                 sx={{
@@ -450,6 +494,16 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
                 playerData={getSelectedPlayerData()}
                 onClose={handleModalClose}
                 onSave={handleSavePlayerName}
+            />
+            {/* Leaderboard Modal */}
+            <Leaderboard
+              open={leaderboardOpen}
+              players={getPlayersForLeaderboard()}
+              onClose={handleLeaderboardClose}
+              onExit={handleLeaderboardExit}
+              onRestartRound={handleLeaderboardRestartRound}
+              onNextRound={handleNextRound}
+              roundEnded={roundEnded}
             />
           </Box>
         </Container>

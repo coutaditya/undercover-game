@@ -1,5 +1,5 @@
 import { Card, CardContent, Typography, Box, Chip } from "@mui/material"
-import { Person, Edit, Visibility, Close } from "@mui/icons-material"
+import { Person, Edit, Visibility } from "@mui/icons-material"
 import { useState } from "react"
 
 interface GameCardProps {
@@ -85,7 +85,7 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       sx={{
-        height: 200,
+        height: 240,
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -197,6 +197,12 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
               textAlign: "center",
               wordBreak: "break-word",
               textShadow: "0 2px 4px rgba(0,0,0,0.5)",
+              fontSize: "1rem",
+              lineHeight: 1.2,
+              maxWidth: "100%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
           >
             {playerName}
@@ -211,6 +217,12 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
               fontWeight: "bold",
               textAlign: "center",
               textShadow: "0 2px 4px rgba(0,0,0,0.5)",
+              fontSize: "1rem",
+              lineHeight: 1.2,
+              maxWidth: "100%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
           >
             Agent
@@ -235,7 +247,8 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
               color: isEliminated ? "#888" : "#e5e5e5",
               fontFamily: "'Inter', sans-serif",
               fontWeight: 500,
-              fontSize: "0.9rem",
+              fontSize: "0.8rem",
+
             }}
           >
             Points:
@@ -243,10 +256,16 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
           <Typography
             variant="body1"
             sx={{
-              color: isEliminated ? "#888" : playerName ? "#4caf50" : "#667eea",
+              color: isEliminated ? "#888" : "#e5e5e5",
               fontFamily: "'Inter', sans-serif",
               fontWeight: "bold",
-              fontSize: "1rem",
+              fontSize: "0.8rem",
+              lineHeight: 1.2,
+              maxWidth: "100%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              textShadow: "0 2px 4px rgba(0,0,0,0.3)",
             }}
           >
             {points}
