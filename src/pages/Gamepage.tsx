@@ -12,6 +12,11 @@ import PlayerNameModal from "../components/Modal"
 import Header from "../components/Header"
 import { WORD_PAIRS, MR_WHITE_MESSAGE, type PlayerRole, type WordPair } from "../constants/words"
 
+const CIVILIAN_ROLE = "civilian"
+const UNDERCOVER_ROLE = "undercover"
+const MR_WHITE_ROLE = "mrwhite"
+const UNKNOWN_ROLE = "unknown"
+
 interface GamePageProps {
   totalPlayers: number
   numberOfUndercover: number
@@ -22,6 +27,7 @@ interface PlayerData {
   playerNumber: number
   role: PlayerRole
   word: string
+  isFirst?: boolean
 }
 
 const darkTheme = createTheme({
@@ -55,6 +61,7 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null)
   const [gameStarted, setGameStarted] = useState(false)
+  const [orderedPlayerNumbers, setOrderedPlayerNumbers] = useState<number[]>([])
 
 
   // Scroll to top when component mounts and initialize game
@@ -74,17 +81,17 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
 
     // Add civilians
     for (let i = 0; i < numberOfCivilians; i++) {
-      roles.push("civilian")
+      roles.push(CIVILIAN_ROLE)
     }
 
     // Add undercover agents
     for (let i = 0; i < numberOfUndercover; i++) {
-      roles.push("undercover")
+      roles.push(UNDERCOVER_ROLE)
     }
 
     // Add Mr. White
     for (let i = 0; i < numberOfMrWhite; i++) {
-      roles.push("mrwhite")
+      roles.push(MR_WHITE_ROLE)
     }
 
     // Shuffle roles randomly
@@ -99,22 +106,22 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
 
       let word: string
       switch (role) {
-        case "civilian":
-          word = wordPair?.civilianWord || "unknown"
+        case CIVILIAN_ROLE:
+          word = wordPair?.civilianWord || UNKNOWN_ROLE
           break
-        case "undercover":
-          word = wordPair?.undercoverWord || "unknown"
+        case UNDERCOVER_ROLE:
+          word = wordPair?.undercoverWord || UNKNOWN_ROLE
           break
-        case "mrwhite":
+        case MR_WHITE_ROLE:
           word = MR_WHITE_MESSAGE
           break
         default:
-          word = "Unknown"
+          word = UNKNOWN_ROLE
       }
 
       newPlayerRoles.set(playerNumber, {
         playerNumber,
-        role: role || "civilian",
+        role: role || CIVILIAN_ROLE,
         word,
       })
     }
@@ -150,23 +157,51 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
   }
 
   const handleStartRound = () => {
-    setGameStarted(true)
-  }
+      // Filter non-Mr. White players
+      const eligible = Array.from(playerRoles.entries())
+        .filter(([_, data]) => data.role !== MR_WHITE_ROLE)
+        .map(([num]) => num)
+
+      if (eligible.length === 0) {
+        alert("No eligible player to start the game (non-Mr. White).")
+        return
+      }
+
+      const startingPlayer = eligible[Math.floor(Math.random() * eligible.length)] || 0
+
+      const allPlayerNumbers = Array.from({ length: totalPlayers }, (_, i) => i + 1)
+      const startingIndex = allPlayerNumbers.indexOf(startingPlayer)
+
+      const reordered = [
+        ...allPlayerNumbers.slice(startingIndex),
+        ...allPlayerNumbers.slice(0, startingIndex)
+      ]
+
+      setOrderedPlayerNumbers(reordered)
+      setGameStarted(true)
+    }
 
   const generateCards = () => {
     const cards = []
+    const playerList = gameStarted && orderedPlayerNumbers.length > 0
+      ? orderedPlayerNumbers
+      : Array.from({ length: totalPlayers }, (_, i) => i + 1)
 
-    for (let i = 0; i < totalPlayers; i++) {
-      const playerNumber = i + 1
+    for (let i = 0; i < playerList.length; i++) {
+      const originalPlayerNumber = playerList[i]
+      const orderedNumber = gameStarted ? i + 1 : originalPlayerNumber
+
       cards.push(
-        <Box key={`player-${playerNumber}`} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%', lg: '25%' }, p: 1 }}>
+        <Box key={`player-${originalPlayerNumber}`} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%', lg: '25%' }, p: 1 }}>
           <GameCard
-            playerNumber={playerNumber}
-            playerName={playerNames.get(playerNumber)}
+            playerNumber={originalPlayerNumber || 0 }
+            orderedPlayerNumber={orderedNumber}
+            playerName={playerNames.get(originalPlayerNumber || 0)}
             onClick={handleCardClick}
             gameStarted={gameStarted}
+            isFirst={gameStarted && i === 0}
           />
-        </Box>,
+        </Box>
       )
     }
 

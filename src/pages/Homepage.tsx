@@ -7,6 +7,8 @@ import CounterControl from "../components/CounterControl"
 import RoleSummary from "../components/Summary"
 import Header from "../components/Header"
 
+const MAX_PLAYERS = 20
+const MIN_PLAYERS = 3
 
 const darkTheme = createTheme({
     palette: {
@@ -149,7 +151,7 @@ export function Homepage({totalPlayers = 6, undercovers = 1, mrWhite = 1, setTot
                         <Header title="UNDERCOVER" subtitle="The Ultimate Deception Game" />
 
                         {/* Player Selection */}
-                        <PlayerSlider value={totalPlayers} onChange={handleTotalPlayersChange} min={3} max={12} />
+                        <PlayerSlider value={totalPlayers} onChange={handleTotalPlayersChange} min={MIN_PLAYERS} max={MAX_PLAYERS} />
 
                         {/* Game Formula */}
                         <Box className="text-center py-4">

@@ -7,11 +7,13 @@ import { useState } from "react"
 interface GameCardProps {
   playerNumber: number
   playerName?: string
+  orderedPlayerNumber?: number
   onClick: (playerNumber: number) => void
   gameStarted: boolean
+  isFirst?: boolean
 }
 
-export default function GameCard({ playerNumber, playerName, onClick, gameStarted = false }: GameCardProps) {
+export default function GameCard({ playerNumber, playerName, orderedPlayerNumber, onClick, gameStarted = false, isFirst = false }: GameCardProps) {
   const [isHovered, setIsHovered] = useState(false)
 
   const handleClick = () => {
@@ -127,6 +129,24 @@ export default function GameCard({ playerNumber, playerName, onClick, gameStarte
         </Box>
       )}
 
+      {isFirst && gameStarted && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 12,
+            left: 12,
+          }}
+        >
+          <Chip
+            icon={<span>🎯</span>}
+            size="small"
+            sx={{
+              backgroundColor: "transparent",
+            }}
+          />
+        </Box>
+      )}
+
       <CardContent
         sx={{
           display: "flex",
@@ -198,7 +218,7 @@ export default function GameCard({ playerNumber, playerName, onClick, gameStarte
             textShadow: "0 2px 4px rgba(0,0,0,0.3)",
           }}
         >
-          {playerNumber}
+          {gameStarted ? orderedPlayerNumber : playerNumber}
         </Typography>
       </CardContent>
     </Card>
