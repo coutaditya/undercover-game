@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Container, Typography, Box, ThemeProvider, createTheme, CssBaseline, Fab } from "@mui/material"
@@ -32,10 +30,16 @@ const darkTheme = createTheme({
     },
 })
 
-export function Homepage() {
-    const [totalPlayers, setTotalPlayers] = useState(6)
-    const [undercovers, setUndercovers] = useState(1)
-    const [mrWhite, setMrWhite] = useState(1)
+interface HomepageProps {
+    totalPlayers?: number
+    undercovers?: number
+    mrWhite?: number
+    setTotalPlayers: (value: number) => void
+    setUndercovers: (value: number) => void
+    setMrWhite: (value: number) => void
+}   
+
+export function Homepage({totalPlayers = 6, undercovers = 1, mrWhite = 1, setTotalPlayers, setUndercovers, setMrWhite}: HomepageProps) {
     const [civilians, setCivilians] = useState(totalPlayers - (undercovers + mrWhite))
     const navigate = useNavigate()
 
@@ -74,22 +78,22 @@ export function Homepage() {
     }
     const handleUndercoverChange = (increment: boolean) => {
         if (increment && undercovers + mrWhite < maxSpecialRoles) {
-            setUndercovers((prev) => prev + 1)
+            setUndercovers(undercovers + 1)
         } else if (!increment && undercovers > 0) {
             // Prevent both undercover and mr.white from being 0
             if (!(undercovers === 1 && mrWhite === 0)) {
-                setUndercovers((prev) => prev - 1)
+                setUndercovers(undercovers - 1)
             }
         }
     }
 
     const handleMrWhiteChange = (increment: boolean) => {
         if (increment && undercovers + mrWhite < maxSpecialRoles) {
-            setMrWhite((prev) => prev + 1)
+            setMrWhite(mrWhite+ 1)
         } else if (!increment && mrWhite > 0) {
             // Prevent both undercover and mr.white from being 0
             if (!(mrWhite === 1 && undercovers === 0)) {
-                setMrWhite((prev) => prev - 1)
+                setMrWhite(mrWhite - 1)
             }
         }
     }
