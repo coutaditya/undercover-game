@@ -5,7 +5,7 @@ import { Box, Container, Typography, Chip, ThemeProvider, createTheme, CssBaseli
 import { ArrowBack, Refresh, PlayArrow } from "@mui/icons-material"
 
 import CustomButton from "../components/Button"
-import GameCard from "../components/Card"
+import GameCard from "../components/GameCard"
 import PlayerNameModal from "../components/Modal"
 import Header from "../components/Header"
 import Leaderboard from "../components/Leaderboard"
@@ -151,9 +151,6 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
 
     setSelectedPlayer(playerNumber)
     setModalOpen(true)
-    if (playerData) {
-      playerData.hasViewedOnce = true
-    }
 
     if (gameStarted) {
         // Show elimination modal when game is started
@@ -181,6 +178,18 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
         }
 
         playerData.playerName = playerName
+        newMap.set(playerNumber, playerData)
+      }
+      return newMap
+    })
+  }
+
+  const handleViewedCard = (playerNumber: number) => {
+    setPlayerRoles((prev) => {
+      const newMap = new Map(prev)
+      const playerData = newMap.get(playerNumber)
+      if (playerData) {
+        playerData.hasViewedOnce = true
         newMap.set(playerNumber, playerData)
       }
       return newMap
@@ -247,6 +256,9 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
 
     setOrderedPlayerNumbers(reordered)
     setGameStarted(true)
+
+    // Scroll to top of window
+    window.scrollTo(0, 0)
   }
 
   const handleEliminatePlayer = (playerNumber: number) => {
@@ -450,9 +462,9 @@ const checkWinConditions = () => {
           <Box className="space-y-8">
             {/* Header */}
             {gameStarted ? (
-              <Header title="ELIMINATION ROUND" subtitle="Eliminate The Impostors" />
+              <Header key="elimination-round" title="ELIMINATION ROUND" subtitle="Eliminate The Impostors" />
             ) : (
-              <Header title="MISSION SETUP" subtitle="Configure Your Agents" />
+              <Header key="mission-setup" title="MISSION SETUP" subtitle="Configure Your Agents" />
             )}
 
             {/* Game Stats */}
@@ -622,6 +634,7 @@ const checkWinConditions = () => {
               playerData={getSelectedPlayerData()}
               onClose={handleModalClose}
               onSave={handleSavePlayerName}
+              onViewedCard={handleViewedCard}
             />
             {/* Leaderboard Modal */}
             <Leaderboard

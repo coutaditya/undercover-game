@@ -5,9 +5,14 @@ import { Person, Visibility, ArrowBack } from "@mui/icons-material"
 import type { PlayerRole } from "../constants/words"
 
 interface PlayerData {
-    playerNumber: number
-    role: PlayerRole
-    word: string
+  playerNumber: number
+  playerName: string
+  role: PlayerRole
+  word: string
+  points: number
+  isFirst?: boolean
+  isEliminated: boolean
+  hasViewedOnce: boolean
 }
 
 interface PlayerNameModalProps {
@@ -18,11 +23,12 @@ interface PlayerNameModalProps {
   playerData: PlayerData | null
   onClose: () => void
   onSave: (playerNumber: number, playerName: string) => void
+  onViewedCard: (playerNumber: number) => void
 }
 
 type ModalView = "nameInput" | "wordDisplay"
 
-export default function PlayerNameModal({ open, playerNumber, currentName = "", setModalOpen, playerData, onClose, onSave }: PlayerNameModalProps) {
+export default function PlayerNameModal({ open, playerNumber, currentName = "", setModalOpen, playerData, onClose, onSave, onViewedCard }: PlayerNameModalProps) {
   const [playerName, setPlayerName] = useState(currentName)
   const [modalView, setModalView] = useState<ModalView>("nameInput")
   const [hasName, setHasName] = useState(false)
@@ -53,7 +59,7 @@ export default function PlayerNameModal({ open, playerNumber, currentName = "", 
       onSave(playerNumber, trimmedName)
       if (!hasName) {
         // Automatically show the word after saving for the first time
-        setModalView("wordDisplay")
+        handleSeeWord()
       }
       else {
         setHasName(true)
@@ -69,6 +75,7 @@ export default function PlayerNameModal({ open, playerNumber, currentName = "", 
   }
 
   const handleSeeWord = () => {
+    onViewedCard(playerNumber)
     setModalView("wordDisplay")
   }
 
