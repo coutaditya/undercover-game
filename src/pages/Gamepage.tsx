@@ -4,13 +4,13 @@ import GameCard from "../components/Card"
 import PlayerNameModal from "../components/Modal"
 
 interface GamePageProps {
-    numberOfCivilians: number;
-    numberOfUndercover: number;
-    numberOfMrWhite: number;
+    totalPlayers: number
+    numberOfUndercover: number
+    numberOfMrWhite: number
   }
   
-export function Gamepage({ numberOfCivilians, numberOfUndercover, numberOfMrWhite }: GamePageProps) {
-    const totalPlayers = numberOfCivilians + numberOfUndercover + numberOfMrWhite || 5
+export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: GamePageProps) {
+    const numberOfCivilians = totalPlayers - (numberOfUndercover + numberOfMrWhite)
 
     const [playerNames, setPlayerNames] = useState<Map<number, string>>(new Map())
 
@@ -41,7 +41,7 @@ export function Gamepage({ numberOfCivilians, numberOfUndercover, numberOfMrWhit
         for (let i = 0; i < totalPlayers; i++) {
             const playerNumber = i + 1
             cards.push(
-            <Grid item xs={12} sm={6} md={3} key={`player-${playerNumber}`}>
+            <Grid key={`player-${playerNumber}`}>
                 <GameCard playerNumber={playerNumber} playerName={playerNames.get(playerNumber)} onClick={handleCardClick} />
             </Grid>,
             )
