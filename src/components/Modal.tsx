@@ -7,13 +7,14 @@ interface PlayerNameModalProps {
   open: boolean
   playerNumber: number
   currentName?: string
+  setModalOpen: (open: boolean) => void
   onClose: () => void
   onSave: (playerNumber: number, playerName: string) => void
 }
 
 type ModalView = "nameInput" | "wordDisplay"
 
-const PlayerNameModal: React.FC<PlayerNameModalProps> = ({ open, playerNumber, currentName = "", onClose, onSave }) => {
+const PlayerNameModal: React.FC<PlayerNameModalProps> = ({ open, playerNumber, currentName = "", setModalOpen, onClose, onSave }) => {
   const [playerName, setPlayerName] = useState(currentName)
   const [modalView, setModalView] = useState<ModalView>("nameInput")
   const [hasName, setHasName] = useState(false)
@@ -48,9 +49,14 @@ const PlayerNameModal: React.FC<PlayerNameModalProps> = ({ open, playerNumber, c
     const trimmedName = playerName.trim()
     if (trimmedName) {
       onSave(playerNumber, trimmedName)
-      setHasName(true)
-      // Automatically show the word after saving
-      setModalView("wordDisplay")
+      if (!hasName) {
+        // Automatically show the word after saving for the first time
+        setModalView("wordDisplay")
+      }
+      else {
+        setHasName(true)
+        setModalOpen(false)
+      }
     }
   }
 

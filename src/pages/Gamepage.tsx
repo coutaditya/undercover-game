@@ -89,6 +89,7 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
                 open={modalOpen}
                 playerNumber={selectedPlayer || 0}
                 currentName={selectedPlayer ? playerNames.get(selectedPlayer) || "" : ""}
+                setModalOpen={setModalOpen}
                 onClose={handleModalClose}
                 onSave={handleSavePlayerName}
             />
