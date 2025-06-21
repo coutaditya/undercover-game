@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Container, Typography, Box, ThemeProvider, createTheme, CssBaseline, Fab } from "@mui/material"
 import { PlayArrow, Security } from "@mui/icons-material"
 import PlayerSlider from "../components/Slider"
 import CounterControl from "../components/CounterControl"
+import RoleSummary from "../components/Summary"
 
 const darkTheme = createTheme({
     palette: {
@@ -33,9 +34,42 @@ export default function UndercoverHomePage() {
     const [totalPlayers, setTotalPlayers] = useState(6)
     const [undercovers, setUndercovers] = useState(1)
     const [mrWhite, setMrWhite] = useState(1)
+    const [civilians, setCivilians] = useState(totalPlayers - (undercovers + mrWhite))
     const navigate = useNavigate()
 
+    useEffect(() => {
+        setCivilians(totalPlayers - (undercovers + mrWhite))
+    }, [totalPlayers, undercovers, mrWhite])
+
+
+    // Calculate minimum total players (special roles + at least 1 civilian)
+    const minTotalPlayers = Math.max(3, undercovers + mrWhite + 1)
     const maxSpecialRoles = Math.floor(totalPlayers / 2)
+
+    // Ensure total players is never less than minimum required
+    useEffect(() => {
+        if (totalPlayers < minTotalPlayers) {
+            setTotalPlayers(minTotalPlayers)
+        }
+    }, [minTotalPlayers, totalPlayers])
+
+    const handleTotalPlayersChange = (newValue: number) => {
+        setTotalPlayers(newValue)
+
+        // If new total is too small for current special roles, adjust them
+        const newMaxSpecialRoles = Math.floor(newValue / 2)
+        const currentSpecialRoles = undercovers + mrWhite
+
+        if (currentSpecialRoles > newMaxSpecialRoles) {
+            // Proportionally reduce special roles
+            const ratio = newMaxSpecialRoles / currentSpecialRoles
+            const newUndercovers = Math.max(1, Math.floor(undercovers * ratio))
+            const newMrWhite = Math.max(0, newMaxSpecialRoles - newUndercovers)
+
+            setUndercovers(newUndercovers)
+            setMrWhite(newMrWhite)
+        }
+    }
     const handleUndercoverChange = (increment: boolean) => {
         if (increment && undercovers + mrWhite < maxSpecialRoles) {
             setUndercovers((prev) => prev + 1)
@@ -124,7 +158,7 @@ export default function UndercoverHomePage() {
                         </Box>
 
                         {/* Player Selection */}
-                        <PlayerSlider value={totalPlayers} onChange={setTotalPlayers} min={3} max={12} />
+                        <PlayerSlider value={totalPlayers} onChange={handleTotalPlayersChange} min={3} max={12} />
 
                         {/* Game Formula */}
                         <Box className="text-center py-4">
@@ -133,7 +167,7 @@ export default function UndercoverHomePage() {
                                 className="text-white font-medium"
                                 sx={{ textShadow: "1px 1px 3px rgba(0,0,0,0.8)" }}
                             >
-                                Number of Civilians = {totalPlayers - (undercovers + mrWhite)}
+                                Number of Civilians = {civilians}
                             </Typography>
                         </Box>
 
@@ -188,7 +222,6 @@ export default function UndercoverHomePage() {
                         </Box>
 
                         {/* Game Stats */}
-                        {/* Game Stats */}
                         <Box
                             className="text-center space-y-3 p-6 rounded-2xl"
                             sx={{
@@ -203,25 +236,7 @@ export default function UndercoverHomePage() {
                                     Mission Briefing
                                 </Typography>
                             </Box>
-                            <Box className="flex justify-center items-center space-x-6 flex-wrap">
-                                <Typography variant="body1" className="text-gray-300">
-                                    <strong className="text-green-400">{totalPlayers - (undercovers + mrWhite)}</strong> Innocent
-                                    Civilians
-                                </Typography>
-                                <Typography variant="body1" className="text-gray-300">
-                                    •
-                                </Typography>
-                                <Typography variant="body1" className="text-gray-300">
-                                    <strong className="text-blue-400">{undercovers}</strong> Undercover Agent
-                                    {undercovers !== 1 ? "s" : ""}
-                                </Typography>
-                                <Typography variant="body1" className="text-gray-300">
-                                    •
-                                </Typography>
-                                <Typography variant="body1" className="text-gray-300">
-                                    <strong className="text-red-400">{mrWhite}</strong> Mr. White
-                                </Typography>
-                            </Box>
+                            <RoleSummary civilians={civilians} undercovers={undercovers} mrWhite={mrWhite} />
                         </Box>
                     </Box>
                 </Container>
