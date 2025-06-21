@@ -2,7 +2,13 @@
 @import "tailwindcss/utilities";
 @import "tailwindcss";
 
-
+@font-face {
+  font-family: 'BruceForever';
+  src: url('/fonts/BruceForeverRegular-X3jd2.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 html, body, #root {
   margin: 0;

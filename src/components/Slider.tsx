@@ -72,6 +72,8 @@ export default function PlayerSlider({ value, onChange, min = 3, max = 12 }: Pla
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
+            color: "#ffffff",
+            fontFamily: "'Inter', sans-serif",
           }}
         >
           Select Players

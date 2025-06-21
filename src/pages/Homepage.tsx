@@ -7,6 +7,8 @@ import { PlayArrow, Security } from "@mui/icons-material"
 import PlayerSlider from "../components/Slider"
 import CounterControl from "../components/CounterControl"
 import RoleSummary from "../components/Summary"
+import Header from "../components/Header"
+
 
 const darkTheme = createTheme({
     palette: {
@@ -135,27 +137,7 @@ export default function UndercoverHomePage() {
             >
                 <Container maxWidth="md" className="relative z-10 py-8">
                     <Box className="space-y-12">
-                        {/* Header with Logo and Title */}
-                        <Box className="text-center space-y-6">
-                            {/* <SpyLogo /> */}
-                            <Typography
-                                variant="h1"
-                                className="font-bold tracking-wider text-white"
-                                sx={{
-                                    fontSize: { xs: "3rem", md: "5rem" },
-                                    textShadow: "0 0 30px rgba(255, 255, 255, 0.3)",
-                                }}
-                            >
-                                UNDERCOVER
-                            </Typography>
-                            <Typography
-                                variant="h6"
-                                className="text-gray-300 tracking-wide"
-                                sx={{ textShadow: "1px 1px 3px rgba(0,0,0,0.8)" }}
-                            >
-                                🕵️ The Ultimate Deception Game 🕵️
-                            </Typography>
-                        </Box>
+                        <Header title="UNDERCOVER" subtitle="The Ultimate Deception Game" />
 
                         {/* Player Selection */}
                         <PlayerSlider value={totalPlayers} onChange={handleTotalPlayersChange} min={3} max={12} />
