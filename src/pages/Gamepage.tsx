@@ -10,7 +10,7 @@ import PlayerNameModal from "../components/Modal"
 import Header from "../components/Header"
 import Leaderboard from "../components/Leaderboard"
 import { WORD_PAIRS, MR_WHITE_MESSAGE, type PlayerRole } from "../constants/words"
-
+import EliminationModal from "../components/EliminationModal"
 
 const CIVILIAN_ROLE = "civilian"
 const UNDERCOVER_ROLE = "undercover"
@@ -67,16 +67,18 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
   const [orderedPlayerNumbers, setOrderedPlayerNumbers] = useState<number[]>([])
   const [leaderboardOpen, setLeaderboardOpen] = useState(false)
   const [roundEnded, setRoundEnded] = useState(false)
+  const [eliminationModalOpen, setEliminationModalOpen] = useState(false)
+  const [selectedPlayerForElimination, setSelectedPlayerForElimination] = useState<number | null>(null)
+  const [gameEnded, setGameEnded] = useState(false)
+  const [winMessage, setWinMessage] = useState("")
+  const [pointsDistributed, setPointsDistributed] = useState(false)
+
 
   // Initialize game on mount (includes points reset)
   useEffect(() => {
-    initializeGameWithPoints()
-    window.scrollTo(0, 0)
-  }, []) // Only run on mount
-
-  const initializeGameWithPoints = () => {
     assignRolesAndWords()
-  }
+    window.scrollTo(0, 0)
+  }, []) 
 
   const assignRolesAndWords = () => {
     // Select a random word pair
@@ -153,6 +155,15 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
       playerData.hasViewedOnce = true
     }
 
+    if (gameStarted) {
+        // Show elimination modal when game is started
+        setSelectedPlayerForElimination(playerNumber)
+        setEliminationModalOpen(true)
+    } else {
+        // Show name/word modal when game is not started
+        setSelectedPlayer(playerNumber)
+        setModalOpen(true)
+    }
   }
 
   const handleModalClose = () => {
@@ -234,9 +245,117 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
       ...allPlayerNumbers.slice(0, startingIndex)
     ]
 
-    console.log(reordered)
     setOrderedPlayerNumbers(reordered)
     setGameStarted(true)
+  }
+
+  const handleEliminatePlayer = (playerNumber: number) => {
+    setPlayerRoles((prev) => {
+      const newMap = new Map(prev)
+      const playerData = newMap.get(playerNumber)
+      if (playerData) {
+        playerData.isEliminated = true
+        newMap.set(playerNumber, playerData)
+      }
+      return newMap
+    })
+
+    // Check win conditions after elimination
+    setTimeout(() => {
+      checkWinConditions()
+    }, 100)
+  }
+
+const checkWinConditions = () => {
+    // Don't check win conditions if game has already ended or points already distributed
+    if (gameEnded || pointsDistributed) {
+        return
+    }
+
+    const alivePlayers = Array.from(playerRoles.values()).filter((player) => !player.isEliminated)
+    const aliveCivilians = alivePlayers.filter((player) => player.role === CIVILIAN_ROLE)
+    const aliveImpostors = alivePlayers.filter(
+      (player) => player.role === UNDERCOVER_ROLE || player.role === MR_WHITE_ROLE,
+    )
+
+    if (aliveImpostors.length === 0) {
+      // Civilians win
+      setWinMessage("Civilians Win! All impostors have been eliminated!")
+      distributeCivilianWinPoints()
+      setPointsDistributed(true)
+      setGameEnded(true)
+    } else if (aliveCivilians.length <= 1 && aliveImpostors.length > 0) {
+      // Impostors win
+      setWinMessage("Impostors Win! They have eliminated enough civilians!")
+      distributeImpostorWinPoints()
+      setPointsDistributed(true)
+      setGameEnded(true)
+    }
+  }
+
+  const distributeCivilianWinPoints = () => {
+    setPlayerRoles((prev) => {
+      const newMap = new Map(prev)
+      newMap.forEach((player, key) => {
+        if (player.role === CIVILIAN_ROLE) {
+          player.points += 2
+          newMap.set(key, player)
+        }
+      })
+      return newMap
+    })
+  }
+
+  const distributeImpostorWinPoints = () => {
+    setPlayerRoles((prev) => {
+      const newMap = new Map(prev)
+      newMap.forEach((player, key) => {
+        if (player.role === UNDERCOVER_ROLE) {
+          player.points += 10
+        } else if (player.role === MR_WHITE_ROLE) {
+          player.points += 6
+        }
+        newMap.set(key, player)
+      })
+      return newMap
+    })
+  }
+
+  const handleMrWhiteWin = () => {
+    if (pointsDistributed) {
+        return
+    }
+
+    setWinMessage("Mr. White Wins! He correctly guessed the word!")
+    setPlayerRoles((prev) => {
+      const newMap = new Map(prev)
+      newMap.forEach((player, key) => {
+        if (player.role === MR_WHITE_ROLE) {
+          player.points += 6
+          newMap.set(key, player)
+        }
+      })
+      return newMap
+    })
+    setPointsDistributed(true)
+    setGameEnded(true)
+  }
+
+  const handleEliminationModalClose = () => {
+    setEliminationModalOpen(false)
+    setSelectedPlayerForElimination(null)
+
+    // Reset game ended state when modal closes
+    if (gameEnded) {
+        setGameEnded(false)
+        setWinMessage("")
+        setPointsDistributed(true)
+      }
+  }
+
+  const getSelectedPlayerForEliminationData = (): PlayerData | null => {
+    if (!selectedPlayerForElimination) return null
+    return playerRoles.get(selectedPlayerForElimination) || null
   }
 
   const generateCards = () => {
@@ -513,6 +632,16 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
               onRestartRound={handleLeaderboardRestartRound}
               onNextRound={handleNextRound}
               roundEnded={roundEnded}
+            />
+
+            <EliminationModal
+                open={eliminationModalOpen}
+                playerData={getSelectedPlayerForEliminationData()}
+                onClose={handleEliminationModalClose}
+                onEliminate={handleEliminatePlayer}
+                onMrWhiteWin={handleMrWhiteWin}
+                gameEnded={gameEnded}
+                winMessage={winMessage}
             />
           </Box>
         </Container>
