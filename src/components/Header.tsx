@@ -13,7 +13,7 @@ export default function Header({ title = "UNDERCOVER", subtitle = "The Ultimate 
         <Box className="text-center space-y-6">
             <Box
                 sx={{
-                    fontSize: { xs: "3rem", md: "5rem" },
+                    fontSize: { xs: "2.5rem", sm: "4rem", md: "5rem" },
                     textShadow: "0 0 30px rgba(255, 255, 255, 0.3), 0 0 60px rgba(102, 126, 234, 0.2)",
                     fontFamily: "'Paralucent-light'",
                     fontWeight: "bold",
