@@ -66,7 +66,6 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
   const [gameStarted, setGameStarted] = useState(false)
   const [orderedPlayerNumbers, setOrderedPlayerNumbers] = useState<number[]>([])
   const [leaderboardOpen, setLeaderboardOpen] = useState(false)
-  const [roundEnded, setRoundEnded] = useState(false)
   const [eliminationModalOpen, setEliminationModalOpen] = useState(false)
   const [selectedPlayerForElimination, setSelectedPlayerForElimination] = useState<number | null>(null)
   const [gameEnded, setGameEnded] = useState(false)
@@ -155,6 +154,7 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
     if (gameStarted) {
         // Show elimination modal when game is started
         setSelectedPlayerForElimination(playerNumber)
+        setModalOpen(false)
         setEliminationModalOpen(true)
     } else {
         // Show name/word modal when game is not started
@@ -221,14 +221,14 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
     setLeaderboardOpen(false)
     // Reset game state for new round
     setGameStarted(false)
-    setRoundEnded(false)
+    setGameEnded(false)
     assignRolesAndWords()
   }
 
   const handleNextRound = () => {
     console.log("Next Round clicked")
     setLeaderboardOpen(false)
-    setRoundEnded(false)
+    setGameEnded(false)
     setGameStarted(false)
     assignRolesAndWords()
   }
@@ -316,6 +316,7 @@ const checkWinConditions = () => {
       })
       return newMap
     })
+    setLeaderboardOpen(true)
   }
 
   const distributeImpostorWinPoints = () => {
@@ -331,6 +332,7 @@ const checkWinConditions = () => {
       })
       return newMap
     })
+    setLeaderboardOpen(true)
   }
 
   const handleMrWhiteWin = () => {
@@ -351,18 +353,12 @@ const checkWinConditions = () => {
     })
     setPointsDistributed(true)
     setGameEnded(true)
+    setLeaderboardOpen(true)
   }
 
   const handleEliminationModalClose = () => {
     setEliminationModalOpen(false)
     setSelectedPlayerForElimination(null)
-
-    // Reset game ended state when modal closes
-    if (gameEnded) {
-        setGameEnded(false)
-        setWinMessage("")
-        setPointsDistributed(true)
-      }
   }
 
   const getSelectedPlayerForEliminationData = (): PlayerData | null => {
@@ -391,7 +387,7 @@ const checkWinConditions = () => {
             gameStarted={gameStarted}
             isFirst={gameStarted && i === 0}
             points={playerRoles.get(playerNumber)?.points || 0}
-            isEliminated={playerRoles.get(playerNumber)?.isEliminated || false}
+            isEliminated={playerRoles.get(playerNumber)?.isEliminated || gameEnded}
             hasViewedOnce={playerRoles.get(playerNumber)?.hasViewedOnce || false}
           />
         </Box>
@@ -644,7 +640,7 @@ const checkWinConditions = () => {
               onExit={handleLeaderboardExit}
               onRestartRound={handleLeaderboardRestartRound}
               onNextRound={handleNextRound}
-              roundEnded={roundEnded}
+              roundEnded={gameEnded}
             />
 
             <EliminationModal
