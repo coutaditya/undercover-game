@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 
@@ -23,11 +21,14 @@ interface GamePageProps {
   numberOfMrWhite: number
 }
 
-interface PlayerData {
-  playerNumber: number
-  role: PlayerRole
-  word: string
-  isFirst?: boolean
+interface PlayerData {  
+    playerNumber: number
+    playerName: string
+    role: PlayerRole
+    word: string
+    points: number
+    isFirst?: boolean
+    isEliminated: boolean
 }
 
 const darkTheme = createTheme({
@@ -55,26 +56,28 @@ const darkTheme = createTheme({
 export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: GamePageProps) {
   const numberOfCivilians = totalPlayers - (numberOfUndercover + numberOfMrWhite)
   const navigate = useNavigate()
-  const [playerNames, setPlayerNames] = useState<Map<number, string>>(new Map())
+  const [updatedPlayerNamesCount, setUpdatedPlayerNamesCount] = useState(0)
   const [playerRoles, setPlayerRoles] = useState<Map<number, PlayerData>>(new Map())
-  const [_, setSelectedWordPair] = useState<WordPair | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null)
   const [gameStarted, setGameStarted] = useState(false)
   const [orderedPlayerNumbers, setOrderedPlayerNumbers] = useState<number[]>([])
 
 
-  // Scroll to top when component mounts and initialize game
+  // Initialize game on mount (includes points reset)
   useEffect(() => {
-    initializeGame()
+    initializeGameWithPoints()
     window.scrollTo(0, 0)
-  }, [])
+  }, []) // Only run on mount
 
-  const initializeGame = () => {
+  const initializeGameWithPoints = () => {
+    assignRolesAndWords()
+  }
+
+  const assignRolesAndWords = () => {
     // Select a random word pair
     const randomIndex = Math.floor(Math.random() * WORD_PAIRS.length)
     const wordPair = WORD_PAIRS[randomIndex] || null
-    setSelectedWordPair(wordPair)
 
     // Create array of roles
     const roles: PlayerRole[] = []
@@ -123,6 +126,9 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
         playerNumber,
         role: role || CIVILIAN_ROLE,
         word,
+        playerName: playerRoles.get(playerNumber)?.playerName || "",
+        points: playerRoles.get(playerNumber)?.points ?? 0,
+        isEliminated: false,
       })
     }
 
@@ -130,6 +136,12 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
   }
 
   const handleCardClick = (playerNumber: number) => {
+    const playerData = playerRoles.get(playerNumber)
+    // Don't allow clicking on eliminated players
+    if (playerData?.isEliminated) {
+      return
+    }
+
     setSelectedPlayer(playerNumber)
     setModalOpen(true)
   }
@@ -140,9 +152,17 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
   }
 
   const handleSavePlayerName = (playerNumber: number, playerName: string) => {
-    setPlayerNames((prev) => {
+    setPlayerRoles((prev) => {
       const newMap = new Map(prev)
-      newMap.set(playerNumber, playerName)
+      const playerData = newMap.get(playerNumber)
+      if (playerData) {
+        if (!playerData.playerName) {
+          setUpdatedPlayerNamesCount((prevCount) => prevCount + 1)
+        }
+
+        playerData.playerName = playerName
+        newMap.set(playerNumber, playerData)
+      }
       return newMap
     })
   }
@@ -190,29 +210,27 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
     for (let i = 0; i < playerList.length; i++) {
       const originalPlayerNumber = playerList[i]
       const orderedNumber = gameStarted ? i + 1 : originalPlayerNumber
+      const playerNumber = playerRoles.get(i + 1)?.playerNumber || i + 1
 
       cards.push(
-        <Box key={`player-${originalPlayerNumber}`} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%', lg: '25%' }, p: 1 }}>
+        <Box key={`player-${playerNumber}`} sx={{ width: { xs: '100%', sm: '50%', md: '33.33%', lg: '25%' }, p: 1 }}>
           <GameCard
-            playerNumber={originalPlayerNumber || 0 }
+            playerNumber={playerNumber}
             orderedPlayerNumber={orderedNumber}
-            playerName={playerNames.get(originalPlayerNumber || 0)}
+            playerName={playerRoles.get(playerNumber)?.playerName || ""}
             onClick={handleCardClick}
             gameStarted={gameStarted}
             isFirst={gameStarted && i === 0}
+            points={playerRoles.get(playerNumber)?.points || 0} 
+            isEliminated={playerRoles.get(playerNumber)?.isEliminated || false}
           />
         </Box>
-      )
-    }
-
+        )
+      }
     return cards
   }
 
-  const getNamedPlayersCount = () => {
-    return playerNames.size
-  }
-
-  const allPlayersNamed = getNamedPlayersCount() === totalPlayers
+  const allPlayersNamed = updatedPlayerNamesCount === totalPlayers
 
   const getSelectedPlayerData = (): PlayerData | null => {
     if (!selectedPlayer) return null
@@ -285,7 +303,7 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
                   mb: 3, // margin bottom (24px)
                 }}
               >
-                Players: {totalPlayers} | Named: {getNamedPlayersCount()}
+                Players: {totalPlayers} | Named: {updatedPlayerNamesCount}
               </Typography>
 
               <Box className="flex justify-center gap-4 flex-wrap">
@@ -425,13 +443,13 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
 
             {/* Player Name Modal */}
             <PlayerNameModal
-              open={modalOpen}
-              playerNumber={selectedPlayer || 0}
-              currentName={selectedPlayer ? playerNames.get(selectedPlayer) || "" : ""}
-              setModalOpen={setModalOpen}
-              playerData={getSelectedPlayerData()}
-              onClose={handleModalClose}
-              onSave={handleSavePlayerName}
+                open={modalOpen}
+                playerNumber={selectedPlayer || 0}
+                currentName={selectedPlayer ? playerRoles.get(selectedPlayer)?.playerName || "" : ""}
+                setModalOpen={setModalOpen}
+                playerData={getSelectedPlayerData()}
+                onClose={handleModalClose}
+                onSave={handleSavePlayerName}
             />
           </Box>
         </Container>

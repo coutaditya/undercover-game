@@ -1,23 +1,25 @@
-"use client"
-
 import { Card, CardContent, Typography, Box, Chip } from "@mui/material"
-import { Person, Edit, Visibility } from "@mui/icons-material"
+import { Person, Edit, Visibility, Close } from "@mui/icons-material"
 import { useState } from "react"
 
 interface GameCardProps {
   playerNumber: number
   playerName?: string
   orderedPlayerNumber?: number
+  points: number
+  isEliminated: boolean
   onClick: (playerNumber: number) => void
   gameStarted: boolean
   isFirst?: boolean
 }
 
-export default function GameCard({ playerNumber, playerName, orderedPlayerNumber, onClick, gameStarted = false, isFirst = false }: GameCardProps) {
+export default function GameCard({ playerNumber, playerName, orderedPlayerNumber, points, isEliminated, onClick, gameStarted = false, isFirst = false }: GameCardProps) {
   const [isHovered, setIsHovered] = useState(false)
 
   const handleClick = () => {
-    onClick(playerNumber)
+    if (!isEliminated) {
+        onClick(playerNumber)
+    }
   }
 
   const getCardColors = (hover: boolean = false) => {
@@ -54,10 +56,23 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
       shadowColor: "rgba(76, 175, 80, 0.4)",
     }
 
+    const greyTheme = {
+        background: "rgba(255,255,255,0.1)",
+        border: "2px solid rgba(255, 255, 255, 0.3)",
+        hoverBorder: "2px solid rgba(255, 255, 255, 0.5)",
+        hoverShadow: "0 12px 32px rgba(255, 255, 255, 0.2)",
+        iconColor: "#888",
+        textColor: "#888",
+        gradientBg: "linear-gradient(45deg, #888, #aaa)",
+        shadowColor: "rgba(136, 136, 136, 0.4)",
+    }
+
     if (hover && gameStarted) {
       return redTheme
     } else if (playerName && !gameStarted) {
       return greenTheme
+    } else if (isEliminated) {
+        return greyTheme
     } else {
       return baseTheme
     }
@@ -80,7 +95,7 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
         border: colors.border,
         borderRadius: "16px",
         transition: "all 0.3s ease-in-out",
-        cursor: "pointer",
+        cursor: isEliminated ? "not-allowed" : "pointer",
         position: "relative",
         "&:hover": {
           transform: "translateY(-8px)",
@@ -201,6 +216,42 @@ export default function GameCard({ playerNumber, playerName, orderedPlayerNumber
             Agent
           </Typography>
         )}
+
+        {/* Points Display */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            background: "rgba(0,0,0,0.3)",
+            padding: "4px 12px",
+            borderRadius: "12px",
+            backdropFilter: "blur(5px)",
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              color: isEliminated ? "#888" : "#e5e5e5",
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 500,
+              fontSize: "0.9rem",
+            }}
+          >
+            Points:
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              color: isEliminated ? "#888" : playerName ? "#4caf50" : "#667eea",
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: "bold",
+              fontSize: "1rem",
+            }}
+          >
+            {points}
+          </Typography>
+        </Box>
 
         {/* Player Number */}
         <Typography
