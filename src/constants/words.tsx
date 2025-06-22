@@ -49,3 +49,8 @@ export const WORD_PAIRS: WordPair[] = [
 export type PlayerRole = "civilian" | "undercover" | "mrwhite"
 
 export const MR_WHITE_MESSAGE = "You are Mr. White!"
+
+export const CIVILIAN_ROLE = "civilian"
+export const UNDERCOVER_ROLE = "undercover"
+export const MR_WHITE_ROLE = "mrwhite"
+export const UNKNOWN_ROLE = "unknown"

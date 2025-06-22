@@ -9,13 +9,8 @@ import GameCard from "../components/GameCard"
 import PlayerNameModal from "../components/Modal"
 import Header from "../components/Header"
 import Leaderboard from "../components/Leaderboard"
-import { WORD_PAIRS, MR_WHITE_MESSAGE, type PlayerRole } from "../constants/words"
+import { WORD_PAIRS, MR_WHITE_MESSAGE, type PlayerRole, CIVILIAN_ROLE, MR_WHITE_ROLE, UNDERCOVER_ROLE, UNKNOWN_ROLE } from "../constants/words"
 import EliminationModal from "../components/EliminationModal"
-
-const CIVILIAN_ROLE = "civilian"
-const UNDERCOVER_ROLE = "undercover"
-const MR_WHITE_ROLE = "mrwhite"
-const UNKNOWN_ROLE = "unknown"
 
 interface GamePageProps {
   totalPlayers: number
@@ -71,10 +66,12 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
   const [gameEnded, setGameEnded] = useState(false)
   const [winMessage, setWinMessage] = useState("")
   const [pointsDistributed, setPointsDistributed] = useState(false)
+  const [currentCivilianWord, setCurrentCivilianWord] = useState("")
 
 
   // Initialize game on mount (includes points reset)
   useEffect(() => {
+    console.log("Assigning roles and initializing game state");
     assignRolesAndWords()
     window.scrollTo(0, 0)
   }, []) 
@@ -83,6 +80,8 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
     // Select a random word pair
     const randomIndex = Math.floor(Math.random() * WORD_PAIRS.length)
     const wordPair = WORD_PAIRS[randomIndex] || null
+
+    setCurrentCivilianWord(wordPair?.civilianWord || "")
 
     // Create array of roles
     const roles: PlayerRole[] = []
@@ -148,13 +147,9 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
       return
     }
 
-    setSelectedPlayer(playerNumber)
-    setModalOpen(true)
-
     if (gameStarted) {
         // Show elimination modal when game is started
         setSelectedPlayerForElimination(playerNumber)
-        setModalOpen(false)
         setEliminationModalOpen(true)
     } else {
         // Show name/word modal when game is not started
@@ -222,6 +217,7 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
     // Reset game state for new round
     setGameStarted(false)
     setGameEnded(false)
+    setPointsDistributed(false)
     assignRolesAndWords()
   }
 
@@ -230,6 +226,7 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
     setLeaderboardOpen(false)
     setGameEnded(false)
     setGameStarted(false)
+    setPointsDistributed(false)
     assignRolesAndWords()
   }
 
@@ -262,6 +259,7 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
   }
 
   const handleEliminatePlayer = (playerNumber: number) => {
+    console.log("Eliminating player:", playerNumber)
     setPlayerRoles((prev) => {
       const newMap = new Map(prev)
       const playerData = newMap.get(playerNumber)
@@ -272,23 +270,27 @@ export function Gamepage({ totalPlayers, numberOfUndercover, numberOfMrWhite }: 
       return newMap
     })
 
-    // Check win conditions after elimination
     setTimeout(() => {
-      checkWinConditions()
-    }, 100)
+        checkWinConditions();
+    }, 0);
   }
 
 const checkWinConditions = () => {
     // Don't check win conditions if game has already ended or points already distributed
     if (gameEnded || pointsDistributed) {
+        console.log("Win check skipped, gameEnded or points already distributed")
         return
     }
+
+    console.log("Running win condition check")
 
     const alivePlayers = Array.from(playerRoles.values()).filter((player) => !player.isEliminated)
     const aliveCivilians = alivePlayers.filter((player) => player.role === CIVILIAN_ROLE)
     const aliveImpostors = alivePlayers.filter(
       (player) => player.role === UNDERCOVER_ROLE || player.role === MR_WHITE_ROLE,
     )
+
+    console.log("Alive Civilians:", aliveCivilians.length, "Alive Impostors:", aliveImpostors.length)
 
     if (aliveImpostors.length === 0) {
       // Civilians win
@@ -306,6 +308,7 @@ const checkWinConditions = () => {
   }
 
   const distributeCivilianWinPoints = () => {
+    console.log("Distributing points to civilians")
     setPlayerRoles((prev) => {
       const newMap = new Map(prev)
       newMap.forEach((player, key) => {
@@ -316,10 +319,10 @@ const checkWinConditions = () => {
       })
       return newMap
     })
-    setLeaderboardOpen(true)
   }
 
   const distributeImpostorWinPoints = () => {
+    console.log("Distributing points to impostors")
     setPlayerRoles((prev) => {
       const newMap = new Map(prev)
       newMap.forEach((player, key) => {
@@ -332,10 +335,10 @@ const checkWinConditions = () => {
       })
       return newMap
     })
-    setLeaderboardOpen(true)
   }
 
   const handleMrWhiteWin = () => {
+    console.log("Mr. White win condition triggered")
     if (pointsDistributed) {
         return
     }
@@ -353,12 +356,16 @@ const checkWinConditions = () => {
     })
     setPointsDistributed(true)
     setGameEnded(true)
-    setLeaderboardOpen(true)
   }
 
   const handleEliminationModalClose = () => {
+    console.log("Closing elimination modal")
     setEliminationModalOpen(false)
     setSelectedPlayerForElimination(null)
+
+    if (gameEnded) {
+        setTimeout(() => setLeaderboardOpen(true), 300);
+    }
   }
 
   const getSelectedPlayerForEliminationData = (): PlayerData | null => {
@@ -651,6 +658,7 @@ const checkWinConditions = () => {
                 onMrWhiteWin={handleMrWhiteWin}
                 gameEnded={gameEnded}
                 winMessage={winMessage}
+                civilianWord={currentCivilianWord}
             />
           </Box>
         </Container>

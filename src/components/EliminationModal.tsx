@@ -13,8 +13,7 @@ import {
   Alert,
 } from "@mui/material"
 import { Person, Warning, CheckCircle } from "@mui/icons-material"
-import type { PlayerRole } from "../constants/words"
-import { WORD_PAIRS } from "../constants/words"
+import { type PlayerRole, MR_WHITE_ROLE } from "../constants/words"
 
 interface PlayerData {
   playerNumber: number
@@ -33,6 +32,7 @@ interface EliminationModalProps {
   onMrWhiteWin: () => void
   gameEnded: boolean
   winMessage: string
+  civilianWord: string
 }
 
 type ModalView = "confirm" | "eliminated" | "mrWhiteGuess" | "gameEnd"
@@ -45,6 +45,7 @@ export default function EliminationModal({
   onMrWhiteWin,
   gameEnded,
   winMessage,
+  civilianWord,
 }: EliminationModalProps) {
   const [modalView, setModalView] = useState<ModalView>("confirm")
   const [mrWhiteGuess, setMrWhiteGuess] = useState("")
@@ -77,26 +78,23 @@ export default function EliminationModal({
     }
 
     setEliminationMessage(message)
-    onEliminate(playerData.playerNumber)
 
-    if (playerData.role === "mrwhite") {
+    if (playerData.role === MR_WHITE_ROLE) {
       setModalView("mrWhiteGuess")
     } else {
+      onEliminate(playerData.playerNumber)
       setModalView("eliminated")
     }
   }
 
   const handleMrWhiteGuessSubmit = () => {
-    const correctWords = WORD_PAIRS.flatMap((pair) => [
-      pair.civilianWord.toLowerCase(),
-      pair.undercoverWord.toLowerCase(),
-    ])
-    const isCorrect = correctWords.includes(mrWhiteGuess.toLowerCase().trim())
+    const isCorrect = mrWhiteGuess.toLowerCase().trim() === civilianWord.toLowerCase()
 
     if (isCorrect) {
       onMrWhiteWin()
       setModalView("gameEnd")
-    } else {
+    } else if (playerData){
+      onEliminate(playerData.playerNumber)
       setModalView("eliminated")
     }
   }

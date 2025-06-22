@@ -2,7 +2,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Typography, Box, Divider } from "@mui/material"
 import { Person, Visibility, ArrowBack } from "@mui/icons-material"
-import type { PlayerRole } from "../constants/words"
+import { MR_WHITE_ROLE, type PlayerRole } from "../constants/words"
 
 interface PlayerData {
   playerNumber: number
@@ -261,7 +261,7 @@ export default function PlayerNameModal({ open, playerNumber, currentName = "", 
               fontFamily: "'Inter', sans-serif",
             }}
           >
-            {playerData.role === "mrwhite" ? "Your role:" : "Your secret word is:"}
+            {playerData.role === MR_WHITE_ROLE ? "Your role:" : "Your secret word is:"}
           </Typography>
           <Box
             sx={{
@@ -294,7 +294,7 @@ export default function PlayerNameModal({ open, playerNumber, currentName = "", 
               fontFamily: "'Inter', sans-serif",
             }}
           >
-              {playerData.role === "mrwhite"
+              {playerData.role === MR_WHITE_ROLE
                 ? "You don't know the word. Try to blend in!"
                 : "Remember this word for the mission!"}
           </Typography>
